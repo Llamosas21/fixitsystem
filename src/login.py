@@ -7,7 +7,8 @@ class LoginWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("FixItSystem - Login")
-        self.setGeometry(100, 100, 300, 200)
+        self.showMaximized()
+
 
         layout = QVBoxLayout()
 
