@@ -45,7 +45,7 @@ class InicioWindow(QWidget):
         # Frame interno (Azul oscuro)
         self.frame_interno = QFrame(self.frame)
         self.frame_interno.setFixedSize(1000, 500)
-        self.frame_interno.setStyleSheet("QFrame {background-color: #1e3f69; border: none; border-radius: 20px;}")
+        self.frame_interno.setStyleSheet("QFrame {background-color: #102540; border: none; border-radius: 20px;}")
 
         frame_interno_layout = QVBoxLayout(self.frame_interno)
         frame_interno_layout.setSpacing(15)
@@ -84,7 +84,7 @@ class InicioWindow(QWidget):
         # BOTONES DE NAVEGACIÓN
         boton_estilo = """
             QPushButton {
-                background-color: #1e3f69;
+                background-color: #102540;
                 color: white;
                 border-radius: 10px;
                 padding: 5px 15px;
@@ -110,16 +110,12 @@ class InicioWindow(QWidget):
         botones_layout.addWidget(self.boton_fichas)
         botones_layout.setAlignment(Qt.AlignCenter)
 
-        # ==========================
         # ORGANIZAR ELEMENTOS
-        # ==========================
         frame_layout.addWidget(self.label_titulo, alignment=Qt.AlignHCenter | Qt.AlignTop)
         frame_layout.addWidget(self.frame_interno, alignment=Qt.AlignCenter)
         frame_layout.addLayout(botones_layout)
 
-        # ==========================
         # LAYOUT PRINCIPAL
-        # ==========================
         layout_principal = QVBoxLayout(self)
         layout_principal.addWidget(self.frame, alignment=Qt.AlignCenter)
         self.setLayout(layout_principal)

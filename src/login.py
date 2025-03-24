@@ -1,11 +1,11 @@
 import os
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFrame
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFrame, QSizePolicy
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtCore import Qt
 from src.inicio import InicioWindow
 from src.controllers.auth import verificar_usuario
 
-class LoginWindow(QWidget):
+class LoginWindow(QWidget): #Se construye la ventana de inicio de sesión
     def __init__(self):
         super().__init__()
         self.setWindowTitle("FixItSystem - Login")
@@ -18,6 +18,7 @@ class LoginWindow(QWidget):
 
         # Cargar la fuente personalizada
         font_path = os.path.join(os.path.dirname(__file__), 'resources/fonts/SongMyung-Regular.ttf')
+      
         font_id = QFontDatabase.addApplicationFont(font_path)
         font_families = QFontDatabase.applicationFontFamilies(font_id)
 
@@ -37,22 +38,25 @@ class LoginWindow(QWidget):
             "border-radius: 15px;}"
         )
         self.frame.setLayout(QVBoxLayout())
+        self.frame.layout().setContentsMargins(20, 20, 20, 20) 
 
         # Layout principal para la ventana
         layout = QVBoxLayout(self)
-        layout.addWidget(self.frame, alignment=Qt.AlignCenter)  # Añadir el frame al layout principal
+        layout.addWidget(self.frame, alignment=Qt.AlignCenter) # Añadir el frame al layout principal
 
         # Widgets
         self.label_titulo = QLabel("FixItSystem")
         self.label_titulo.setFont(custom_font)
         self.label_titulo.setStyleSheet("color: #102540; font-size: 40px;")
-        self.label_titulo.setContentsMargins(0, 50, 0, 50)  # Ajustar márgenes
 
         self.input_usuario = QLineEdit()
         self.input_usuario.setPlaceholderText("Usuario")
         self.input_usuario.setFont(custom_font)
         self.input_usuario.setStyleSheet(
-            "QLineEdit {background-color: #102540; color: #fff; border-radius: 10px; padding: 15px; margin: 10px;}"
+            "QLineEdit {"
+            "background-color: #102540; color: #fff; border-radius: 10px; "
+            "height: 35px; width: 300px;"
+            "}"
         )
 
         self.input_contraseña = QLineEdit()
@@ -60,22 +64,59 @@ class LoginWindow(QWidget):
         self.input_contraseña.setEchoMode(QLineEdit.Password)
         self.input_contraseña.setFont(custom_font)
         self.input_contraseña.setStyleSheet(
-            "QLineEdit {background-color: #102540; color: #fff; border-radius: 10px; padding: 15px; margin: 10px;}"
+            "QLineEdit {"
+            "background-color: #102540; color: #fff; border-radius: 10px; "
+            "height: 35px; width: 300px;"
+            "}" 
         )
+
+        self.input_contraseña.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
+        # BOTONES DE NAVEGACIÓN
+        boton_estilo = """
+            QPushButton {
+                background-color: #102540;
+                color: white;
+                border-radius: 10px;
+                padding: 5px 15px;
+            }
+            QPushButton:hover {
+                background-color: #2a4a75;
+            }
+        """
 
         self.boton_ingresar = QPushButton("Ingresar")
         self.boton_ingresar.setFont(custom_font)
-        self.boton_ingresar.setStyleSheet(
-            "QPushButton {background-color: #102540; color: #fff; border-radius: 10px; padding: 15px; margin: 20px;}"
-        )
+        self.boton_ingresar.setFixedSize(100, 35) 
+        self.boton_ingresar.setStyleSheet(boton_estilo)
+        self.boton_ingresar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.boton_ingresar.clicked.connect(self.abrir_inicio)
 
-        # Añadir widgets al layout del frame
-        self.frame.layout().addWidget(self.label_titulo, alignment=Qt.AlignHCenter | Qt.AlignTop)
-        self.frame.layout().addWidget(self.input_usuario)
-        self.frame.layout().addWidget(self.input_contraseña)
-        self.frame.layout().addWidget(self.boton_ingresar)
+        # Crear un frame sin color para contener los elementos
+        self.contenedor_frame = QFrame(self.frame)
+        self.contenedor_frame.setStyleSheet("QFrame { background: transparent;}")
+        self.contenedor_frame.setLayout(QVBoxLayout()) 
+        self.contenedor_frame.setFixedHeight(400) 
 
+        # Añadir widgets al contenedor_frame
+        self.frame.layout().addWidget(self.label_titulo, alignment=Qt.AlignHCenter)
+        self.frame.layout().addWidget(self.contenedor_frame, alignment=Qt.AlignCenter)
+
+        # Asegurar que los widgets dentro del contenedor están centrados
+        self.contenedor_frame.layout().addWidget(self.input_usuario, alignment=Qt.AlignCenter)
+        self.contenedor_frame.layout().addWidget(self.input_contraseña, alignment=Qt.AlignCenter)
+        self.contenedor_frame.layout().addWidget(self.boton_ingresar, alignment=Qt.AlignCenter) 
+
+    """def iniciar_sesion(self):
+        usuario = self.input_usuario.text()
+        contraseña = self.input_contraseña.text()
+
+        if verificar_usuario(usuario, contraseña):
+            self.abrir_inicio()
+        else:
+            self.label_usuario.setText("❌ Usuario incorrecto")
+    """
+    
     def abrir_inicio(self):
         self.inicio = InicioWindow()
         self.inicio.show()
