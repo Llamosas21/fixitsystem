@@ -25,61 +25,56 @@ class InicioWindow(QWidget):
         else:
             print("Error: No se encontró la familia de fuentes.")
 
-        # FRAME PRINCIPAL (Celeste)
+        # FRAME PRINCIPAL 
         self.frame = QFrame(self)
         self.frame.setFixedSize(1200, 700)
         self.frame.setStyleSheet("QFrame {background-color: #3084f2; border: none; border-radius: 15px;}")
-
-        # Layout para el frame principal
         frame_layout = QVBoxLayout(self.frame)
-        frame_layout.setSpacing(10)
-
+        frame_layout.setSpacing(15)
 
         # Título del programa 
         self.label_titulo = QLabel("FixItSystem")
         self.label_titulo.setFont(custom_font)
-        self.label_titulo.setStyleSheet("color: #102540; font-size: 30px;")
+        self.label_titulo.setStyleSheet("color: #102540; font-size: 30px; padding-top: 20px;")
         self.label_titulo.setAlignment(Qt.AlignHCenter)
 
-
-        # Frame interno (Azul oscuro)
-        self.frame_interno = QFrame(self.frame)
-        self.frame_interno.setFixedSize(1000, 500)
-        self.frame_interno.setStyleSheet("QFrame {background-color: #102540; border: none; border-radius: 20px;}")
-
-        frame_interno_layout = QVBoxLayout(self.frame_interno)
-        frame_interno_layout.setSpacing(15)
-
+        # Frame contenedor 
+        self.frame_contenedor = QFrame(self.frame)
+        self.frame_contenedor.setFixedSize(1000, 500)
+        self.frame_contenedor.setStyleSheet("QFrame {background-color: #102540; border: none; border-radius: 20px;}")
+        frame_contenedor_layout = QVBoxLayout(self.frame_contenedor)
+        frame_contenedor_layout.setSpacing(15)
 
         # Barra de busqueda
         self.input_busqueda = QLineEdit()
         self.input_busqueda.setPlaceholderText("Buscar")
         self.input_busqueda.setFixedHeight(40)
+
         self.input_busqueda.setStyleSheet("""
             QLineEdit {
                 background-color: #2a4a75;
                 border-radius: 10px;
                 color: white;
                 padding-left: 10px;
+                margin-left: 30px;  
+                margin-right: 30px; 
             }
         """)
 
-    
-        # Se definen los frames internos y externos
-        self.frame_arriba = QFrame(self.frame_interno)
-        self.frame_arriba.setFixedSize(900, 150)
+        # Se definen los frames internos 
+        self.frame_arriba = QFrame(self.frame_contenedor)
+        self.frame_arriba.setFixedSize(900, 170)
         self.frame_arriba.setStyleSheet("QFrame {background-color: #1e3f69; border-radius: 10px;}")
 
-        self.frame_abajo = QFrame(self.frame_interno)
-        self.frame_abajo.setFixedSize(900, 150)
+        self.frame_abajo = QFrame(self.frame_contenedor)
+        self.frame_abajo.setFixedSize(900, 170)
         self.frame_abajo.setStyleSheet("QFrame {background-color: #1e3f69; border-radius: 10px;}")
 
         # Agregar elementos al frame interno
-        frame_interno_layout.addWidget(self.input_busqueda)
-        frame_interno_layout.addWidget(self.frame_arriba, alignment=Qt.AlignHCenter)
-        frame_interno_layout.addWidget(self.frame_abajo, alignment=Qt.AlignHCenter)
-        self.frame_interno.setLayout(frame_interno_layout)
-
+        frame_contenedor_layout.addWidget(self.input_busqueda)
+        frame_contenedor_layout.addWidget(self.frame_arriba, alignment=Qt.AlignHCenter)
+        frame_contenedor_layout.addWidget(self.frame_abajo, alignment=Qt.AlignHCenter)
+        self.frame_contenedor.setLayout(frame_contenedor_layout)
 
         # BOTONES DE NAVEGACIÓN
         boton_estilo = """
@@ -97,22 +92,27 @@ class InicioWindow(QWidget):
         self.boton_usuarios = QPushButton("Usuarios")
         self.boton_usuarios.setStyleSheet(boton_estilo)
 
+        self.boton_fichas = QPushButton("Fichas")
+        self.boton_fichas.setStyleSheet(boton_estilo)
+       
         self.boton_reportes = QPushButton("Reportes")
         self.boton_reportes.setStyleSheet(boton_estilo)
 
-        self.boton_fichas = QPushButton("Fichas")
-        self.boton_fichas.setStyleSheet(boton_estilo)
+
+        # Establecer el mismo tamaño para todos los botones
+        for boton in [self.boton_usuarios, self.boton_reportes, self.boton_fichas]:
+            boton.setFixedSize(120, 35) 
 
         # Layout horizontal para los botones
         botones_layout = QHBoxLayout()
         botones_layout.addWidget(self.boton_usuarios)
-        botones_layout.addWidget(self.boton_reportes)
         botones_layout.addWidget(self.boton_fichas)
+        botones_layout.addWidget(self.boton_reportes)
         botones_layout.setAlignment(Qt.AlignCenter)
 
         # ORGANIZAR ELEMENTOS
         frame_layout.addWidget(self.label_titulo, alignment=Qt.AlignHCenter | Qt.AlignTop)
-        frame_layout.addWidget(self.frame_interno, alignment=Qt.AlignCenter)
+        frame_layout.addWidget(self.frame_contenedor, alignment=Qt.AlignCenter)
         frame_layout.addLayout(botones_layout)
 
         # LAYOUT PRINCIPAL
