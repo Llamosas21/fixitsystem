@@ -2,6 +2,7 @@ import os
 from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QFrame, QLineEdit
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtCore import Qt
+from base_de_datos import BaseDateWindow
 
 class InicioWindow(QWidget):
     def __init__(self):
@@ -91,6 +92,7 @@ class InicioWindow(QWidget):
 
         self.boton_usuarios = QPushButton("Usuarios")
         self.boton_usuarios.setStyleSheet(boton_estilo)
+        self.boton_usuarios.clicked.connect(self.abrir_base)
 
         self.boton_Editar = QPushButton("Editar")
         self.boton_Editar.setStyleSheet(boton_estilo)
@@ -119,6 +121,11 @@ class InicioWindow(QWidget):
         layout_principal = QVBoxLayout(self)
         layout_principal.addWidget(self.frame, alignment=Qt.AlignCenter)
         self.setLayout(layout_principal)
+
+    def abrir_base(self):
+            self.usuario = BaseDateWindow()
+            self.usuario.show()
+            self.close()
 
     def resizeEvent(self, event):
         """Evita que la ventana se redimensione."""

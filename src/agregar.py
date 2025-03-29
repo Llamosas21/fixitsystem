@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtCore import Qt
 
+
 class UpdateWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -56,17 +57,18 @@ class UpdateWindow(QWidget):
         grid_layout.setSpacing(10)
 
         etiquetas = [
-            "Producto", "Fecha ingreso", "Precio", "ID",
-            "Garantía fecha", "Garantías", "Modelo", "S.O.",
-            "Procesador", "Memoria", "Fuente", "Ram",
-            "Nombre", "Teléfono", "Domicilio", "Correo"
+            "Fecha ingreso",  "Garantía fecha",    "Procesador","Domicilio",
+            "Producto",       "Garantías",         "Memoria",   "Teléfono",
+            "Precio",         "Modelo",            "Fuente",    "Nombre",
+            "ID",             "S.O.",              "Ram",       "Correo"
         ]
 
         self.entradas = {}
 
         for i, texto in enumerate(etiquetas):
             label = QLabel(texto)
-            label.setStyleSheet("color: white; font-size: 12px;")
+            label.setStyleSheet("color: white; font-size: 12px; font-weight: bold;")
+            label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)  # Alineación centrada vertical y horizontalmente
             campo = QLineEdit()
             campo.setFixedSize(150, 30)
             campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
@@ -75,20 +77,18 @@ class UpdateWindow(QWidget):
             self.entradas[texto] = campo
 
         # CAMPOS DE TEXTO MULTILÍNEA
-        self.observaciones = QTextEdit()
-        self.observaciones.setFixedSize(320, 80)
-        self.observaciones.setPlaceholderText("Observaciones")
-        self.observaciones.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding: 5px;")
-
         self.nota = QTextEdit()
-        self.nota.setFixedSize(320, 80)
-        self.nota.setPlaceholderText("Nota")
-        self.nota.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding: 5px;")
+        self.nota.setFixedSize(400, 200)
+        self.nota.setPlaceholderText("nota")
+        self.nota.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding: 5px; margin-top: 20px; font-weight: bold;")  # Añadido font-weight: bold
 
-        grid_layout.addWidget(QLabel("Observaciones"), 4, 0, 1, 2)
-        grid_layout.addWidget(self.observaciones, 5, 0, 1, 4)
-        grid_layout.addWidget(QLabel("Nota"), 4, 4, 1, 2)
-        grid_layout.addWidget(self.nota, 5, 4, 1, 4)
+        self.observaciones = QTextEdit()
+        self.observaciones.setFixedSize(365, 200)
+        self.observaciones.setPlaceholderText("Observaciones")
+        self.observaciones.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding: 5px; margin-top: 20px; font-weight: bold;")  # Añadido font-weight: bold
+
+        grid_layout.addWidget(self.nota, 5, 1, 1, 4)
+        grid_layout.addWidget(self.observaciones, 5, 5, 1, 4)
 
         frame_contenedor_layout.addLayout(grid_layout)
         self.frame_contenedor.setLayout(frame_contenedor_layout)
@@ -113,13 +113,16 @@ class UpdateWindow(QWidget):
 
         for boton in [self.boton_volver, self.boton_historial, self.boton_aceptar]:
             boton.setStyleSheet(boton_estilo)
-            boton.setFixedSize(120, 40)
+            boton.setFixedSize(120, 35)
 
         botones_layout = QHBoxLayout()
         botones_layout.addWidget(self.boton_volver)
         botones_layout.addWidget(self.boton_historial)
         botones_layout.addWidget(self.boton_aceptar)
         botones_layout.setAlignment(Qt.AlignCenter)
+
+        #ACCIONES DE LOS BOTONES
+        self.boton_volver.clicked.connect(self.volver)
 
         # ORGANIZAR ELEMENTOS
         frame_layout.addWidget(self.label_titulo, alignment=Qt.AlignHCenter | Qt.AlignTop)
@@ -129,6 +132,13 @@ class UpdateWindow(QWidget):
         layout_principal = QVBoxLayout(self)
         layout_principal.addWidget(self.frame, alignment=Qt.AlignCenter)
         self.setLayout(layout_principal)
+
+    def volver(self):
+        from base_de_datos import BaseDateWindow
+        self.base = BaseDateWindow()
+        self.base.show()
+        self.close()
+
 
     def resizeEvent(self, event):
         """Evita que la ventana se redimensione."""

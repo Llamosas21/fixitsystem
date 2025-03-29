@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayo
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtCore import Qt
 from src.inicio import InicioWindow
-from src.controllers.auth import verificar_usuario
+#from src.controllers.auth import verificar_usuario
 
 class LoginWindow(QWidget): #Se construye la ventana de inicio de sesión
     def __init__(self):
@@ -33,9 +33,11 @@ class LoginWindow(QWidget): #Se construye la ventana de inicio de sesión
         self.frame = QFrame(self)
         self.frame.setFixedSize(500, 700)
         self.frame.setStyleSheet(
-            "QFrame {background-color: #3084f2; "
-            "border: none; "
-            "border-radius: 15px;}"
+            "QFrame {"
+            "background-color: #3084f2; "
+            "border: 2px solid white; "  
+            "border-radius: 15px;"
+            "}"
         )
         self.frame.setLayout(QVBoxLayout())
         self.frame.layout().setContentsMargins(20, 20, 20, 20) 
@@ -47,15 +49,17 @@ class LoginWindow(QWidget): #Se construye la ventana de inicio de sesión
         # Widgets
         self.label_titulo = QLabel("FixItSystem")
         self.label_titulo.setFont(custom_font)
-        self.label_titulo.setStyleSheet("color: #102540; font-size: 40px;")
+        self.label_titulo.setStyleSheet("color: #102540; font-size: 40px;;border: None")
 
+        # Estilo de los inputs (sin borde)
         self.input_usuario = QLineEdit()
         self.input_usuario.setPlaceholderText("Usuario")
         self.input_usuario.setFont(custom_font)
         self.input_usuario.setStyleSheet(
             "QLineEdit {"
             "background-color: #102540; color: #fff; border-radius: 10px; "
-            "height: 35px; width: 300px;"
+            "border: 2px solid white; " 
+            "height: 40px; width: 300px;"
             "}"
         )
 
@@ -66,7 +70,8 @@ class LoginWindow(QWidget): #Se construye la ventana de inicio de sesión
         self.input_contraseña.setStyleSheet(
             "QLineEdit {"
             "background-color: #102540; color: #fff; border-radius: 10px; "
-            "height: 35px; width: 300px;"
+            "border: 2px solid white; " 
+            "height: 40px; width: 300px;"
             "}" 
         )
 
@@ -78,6 +83,7 @@ class LoginWindow(QWidget): #Se construye la ventana de inicio de sesión
                 background-color: #102540;
                 color: white;
                 border-radius: 10px;
+                border: 2px solid white;  
                 padding: 5px 15px;
             }
             QPushButton:hover {
@@ -94,9 +100,11 @@ class LoginWindow(QWidget): #Se construye la ventana de inicio de sesión
 
         # Crear un frame sin color para contener los elementos
         self.contenedor_frame = QFrame(self.frame)
-        self.contenedor_frame.setStyleSheet("QFrame { background: transparent;}")
+        self.contenedor_frame.setStyleSheet("QFrame { background: transparent;border: none; }")
         self.contenedor_frame.setLayout(QVBoxLayout()) 
         self.contenedor_frame.setFixedHeight(400) 
+        self.contenedor_frame.setFixedWidth(280)
+    
 
         # Añadir widgets al contenedor_frame
         self.frame.layout().addWidget(self.label_titulo, alignment=Qt.AlignHCenter)
