@@ -21,7 +21,7 @@ class UpdateWindow(QWidget):
         self.setStyleSheet("QWidget {background-color: #0d0d0d;}")
 
     def _cargar_fuente_personalizada(self):
-        font_path = os.path.join(os.path.dirname(__file__), 'resources/fonts/SongMyung-Regular.ttf')
+        font_path = os.path.join(os.path.dirname(__file__), '../resources/fonts/SongMyung-Regular.ttf')
         font_id = QFontDatabase.addApplicationFont(font_path)
         font_families = QFontDatabase.applicationFontFamilies(font_id)
 
@@ -134,7 +134,7 @@ class UpdateWindow(QWidget):
         self.setLayout(layout_principal)
 
     def volver(self):
-        from base_de_datos import BaseDateWindow
+        from views.data_base_client import BaseDateWindow
         self.base = BaseDateWindow()
         self.base.show()
         self.close()

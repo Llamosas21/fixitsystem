@@ -1,11 +1,12 @@
 import os
 from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, 
-    QFrame, QLineEdit
+    QFrame, QLineEdit, QTableWidget, QTableWidgetItem, QHeaderView
 )
 from PySide6.QtGui import QFont, QFontDatabase, QIcon
 from PySide6.QtCore import Qt, QSize
-from agregar import UpdateWindow
+from controllers.client_controller import ClientController
+from views.add_date import UpdateWindow
 
 
 class BaseDateWindow(QWidget):
@@ -14,7 +15,15 @@ class BaseDateWindow(QWidget):
         self.setWindowTitle("FixItSystem - Base de Datos")
         self._configurar_ventana()
         self._cargar_fuente_personalizada()
+
+        # Inicializa el controlador
+        self.controller = ClientController()
+
+        # Crear la interfaz
         self._crear_interfaz()
+
+        # Cargar datos
+        self._cargar_datos()
     
     def _configurar_ventana(self):
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMaximizeButtonHint)
@@ -23,7 +32,7 @@ class BaseDateWindow(QWidget):
 
     # DEDICADO AL TIPO DE LETRA   
     def _cargar_fuente_personalizada(self):
-        font_path = os.path.join(os.path.dirname(__file__), 'resources/fonts/SongMyung-Regular.ttf')
+        font_path = os.path.join(os.path.dirname(__file__), '../resources/fonts/SongMyung-Regular.ttf')
         font_id = QFontDatabase.addApplicationFont(font_path)
         font_families = QFontDatabase.applicationFontFamilies(font_id)
         
@@ -54,7 +63,7 @@ class BaseDateWindow(QWidget):
         self.frame_contenedor.setStyleSheet("QFrame {background-color: #102540; border: none; border-radius: 20px;}")
         frame_contenedor_layout = QVBoxLayout(self.frame_contenedor)
         frame_contenedor_layout.setSpacing(15)
-        frame_contenedor_layout.setContentsMargins(0, 20, 0, 0)
+        frame_contenedor_layout.setContentsMargins(0, 30, 0, 0)
         
         # BARRA DE BÚSQUEDA
         self.input_busqueda = QLineEdit()
@@ -76,10 +85,39 @@ class BaseDateWindow(QWidget):
         
         # BASE DE DATOS
         self.frame_fondo_db = QFrame(self.frame_contenedor)
-        self.frame_fondo_db.setFixedSize(917, 400)
+        self.frame_fondo_db.setFixedSize(917, 360)
         self.frame_fondo_db.setStyleSheet("QFrame {background-color: #1e3f69; border-radius: 15px;}")
         frame_contenedor_layout.addWidget(self.frame_fondo_db, alignment=Qt.AlignCenter)
-        
+
+        # TABLA CON LOS DATOS
+        self.table_widget = QTableWidget(self.frame_fondo_db)
+        self.table_widget.setColumnCount(6)  # Número total de columnas en la tabla 'clientes'
+        self.table_widget.setHorizontalHeaderLabels([
+            "ID Cliente", "Nombre", "Dispositivo", "Correo", "Teléfono",
+            "Fecha de ingreso"
+        ])
+        self.table_widget.setStyleSheet("""
+        QTableWidget {
+            background-color: #1e3f69;
+            color: white;
+            border: 2px solid #2a4a75;  /* Agrega un borde alrededor de la tabla */
+            border-radius: 1px;  /* Bordes redondeados */
+        }
+        QHeaderView::section {
+            background-color: #2a4a75;
+            color: white;
+            border: 2px solid #2a4a75;
+        }
+        QHeaderView::section:vertical {
+            background-color: #2a4a75;  /* Cambia el color del encabezado vertical */
+            color: white;
+            border: 2px solid #2a4a75;
+        }
+    """)
+        self.table_widget.setGeometry(10, 10, self.frame_fondo_db.width() - 20, self.frame_fondo_db.height() - 20)
+        self.table_widget.horizontalHeader().setStretchLastSection(True)  # Ajusta la última columna
+        self.table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Ajusta todas las columnas
+        self.table_widget.verticalHeader().setVisible(False)
         self.frame_contenedor.setLayout(frame_contenedor_layout)
         
         # BOTONES DE NAVEGACIÓN
@@ -126,10 +164,10 @@ class BaseDateWindow(QWidget):
         self.setLayout(layout_principal)
 
         # BOTÓN RETROCESO
-        self.arrow_button = QPushButton(self.frame)  # Agrega el botón directamente al frame
-        arrow = os.path.join(os.path.dirname(__file__), 'resources/icons/icons8-sort-left-30.png')
-        icon = QIcon(arrow)  # Crea un objeto QIcon a partir de la ruta
-        icon_size = icon.actualSize(QSize(50, 50))  # Tamaño máximo permitido para el ícono
+        self.arrow_button = QPushButton(self.frame) 
+        arrow = os.path.join(os.path.dirname(__file__), '../resources/icons/icons8-sort-left-30.png')
+        icon = QIcon(arrow) 
+        icon_size = icon.actualSize(QSize(50, 50))  
         self.arrow_button.setIcon(icon)
 
         # ESTILO DEL BOTÓN
@@ -150,11 +188,24 @@ class BaseDateWindow(QWidget):
         # Acción del botón
         self.arrow_button.clicked.connect(self.volver_al_inicio)    
 
+    def _cargar_datos(self):
+        """Carga los datos desde el controlador y los muestra en el QTableWidget."""
+        datos = self.controller.obtener_clientes()
 
+        # Configurar el número de filas en el QTableWidget
+        self.table_widget.setRowCount(len(datos))
+
+        # Insertar los datos en el QTableWidget
+        for row_index, row_data in enumerate(datos):
+            for col_index, col_data in enumerate(row_data):
+                item = QTableWidgetItem(str(col_data))
+                item.setTextAlignment(Qt.AlignCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                self.table_widget.setItem(row_index, col_index, item)
 
     def volver_al_inicio(self):
-        from inicio import InicioWindow
-        self.login = InicioWindow()
+        from views.start import StartWindow
+        self.login = StartWindow()
         self.login.show()
         self.close()
 
@@ -163,6 +214,11 @@ class BaseDateWindow(QWidget):
         self.actualizar.show()
         self.close()
     
+    def closeEvent(self, event):
+        """Cierra la conexión al controlador al cerrar la ventana."""
+        self.controller.cerrar_conexion()
+        super().closeEvent(event)
+
     def resizeEvent(self, event):# En un futuro se deberá quitar
         """Evita que la ventana se redimensione."""
         self.showMaximized()

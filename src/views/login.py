@@ -2,7 +2,7 @@ import os
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QFrame, QSizePolicy
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtCore import Qt
-from src.inicio import InicioWindow
+from views.start import StartWindow
 #from src.controllers.auth import verificar_usuario
 
 class LoginWindow(QWidget): #Se construye la ventana de inicio de sesión
@@ -17,8 +17,7 @@ class LoginWindow(QWidget): #Se construye la ventana de inicio de sesión
         )
 
         # Cargar la fuente personalizada
-        font_path = os.path.join(os.path.dirname(__file__), 'resources/fonts/SongMyung-Regular.ttf')
-      
+        font_path = os.path.join(os.path.dirname(__file__), '../resources/fonts/SongMyung-Regular.ttf')
         font_id = QFontDatabase.addApplicationFont(font_path)
         font_families = QFontDatabase.applicationFontFamilies(font_id)
 
@@ -27,7 +26,8 @@ class LoginWindow(QWidget): #Se construye la ventana de inicio de sesión
             custom_font = QFont(correct_font_name)  
             custom_font.setBold(True)
         else:
-            print("❌ Error: No se encontró la familia de fuentes.")
+            print("❌ Error: No se encontró la familia de fuentes. Usando fuente predeterminada.")
+            custom_font = QFont("Arial")  # Fuente predeterminada
 
         # Crear un QFrame para contener los widgets
         self.frame = QFrame(self)
@@ -126,6 +126,6 @@ class LoginWindow(QWidget): #Se construye la ventana de inicio de sesión
     """
     
     def abrir_inicio(self):
-        self.inicio = InicioWindow()
+        self.inicio = StartWindow()
         self.inicio.show()
         self.close()

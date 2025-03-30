@@ -2,9 +2,9 @@ import os
 from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QFrame, QLineEdit
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtCore import Qt
-from base_de_datos import BaseDateWindow
+from views.data_base_client import BaseDateWindow
 
-class InicioWindow(QWidget):
+class StartWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("FixItSystem - Inicio")
@@ -15,7 +15,7 @@ class InicioWindow(QWidget):
         self.setStyleSheet("QWidget {background-color: #0d0d0d;}")
 
         # Cargar la fuente personalizada
-        font_path = os.path.join(os.path.dirname(__file__), 'resources/fonts/SongMyung-Regular.ttf')
+        font_path = os.path.join(os.path.dirname(__file__), '../resources/fonts/SongMyung-Regular.ttf')
         font_id = QFontDatabase.addApplicationFont(font_path)
         font_families = QFontDatabase.applicationFontFamilies(font_id)
 
