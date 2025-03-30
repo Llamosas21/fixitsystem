@@ -36,7 +36,7 @@ class StartWindow(QWidget):
         # Título del programa 
         self.label_titulo = QLabel("FixItSystem")
         self.label_titulo.setFont(custom_font)
-        self.label_titulo.setStyleSheet("color: #102540; font-size: 30px; padding-top: 20px;")
+        self.label_titulo.setStyleSheet("color: #102540; font-size: 40px; padding-top: 30px;")
         self.label_titulo.setAlignment(Qt.AlignHCenter)
 
         # Frame contenedor 
@@ -44,7 +44,7 @@ class StartWindow(QWidget):
         self.frame_contenedor.setFixedSize(1000, 500)
         self.frame_contenedor.setStyleSheet("QFrame {background-color: #102540; border: none; border-radius: 20px;}")
         frame_contenedor_layout = QVBoxLayout(self.frame_contenedor)
-        frame_contenedor_layout.setSpacing(15)
+        frame_contenedor_layout.setSpacing(20)
 
         # Barra de busqueda
         self.input_busqueda = QLineEdit()

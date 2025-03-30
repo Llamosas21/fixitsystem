@@ -43,7 +43,7 @@ class UpdateWindow(QWidget):
         # TÍTULO
         self.label_titulo = QLabel("FixItSystem")
         self.label_titulo.setFont(self.custom_font)
-        self.label_titulo.setStyleSheet("color: #102540; font-size: 24px; padding-top: 15px;")
+        self.label_titulo.setStyleSheet("color: #102540; font-size: 40px; padding-top: 15px;")
         self.label_titulo.setAlignment(Qt.AlignHCenter)
 
         # FRAME CONTENEDOR OSCURO
@@ -57,10 +57,10 @@ class UpdateWindow(QWidget):
         grid_layout.setSpacing(10)
 
         etiquetas = [
-            "Fecha ingreso",  "Garantía fecha",    "Procesador","Domicilio",
-            "Producto",       "Garantías",         "Memoria",   "Teléfono",
-            "Precio",         "Modelo",            "Fuente",    "Nombre",
-            "ID",             "S.O.",              "Ram",       "Correo"
+            "Dispositivo",  "Fecha de ingreso",    "Procesador",       "Tarjeta gráfica",
+            "Nombre",       "Garantía",  "Memoria",          "Precio arreglo",
+            "Teléfono",         "Modelo",       "Fuente",           "Placa madre",
+            "Correo",             "S.O.",   "Ram",              "Estado"
         ]
 
         self.entradas = {}
@@ -84,7 +84,7 @@ class UpdateWindow(QWidget):
 
         self.observaciones = QTextEdit()
         self.observaciones.setFixedSize(365, 200)
-        self.observaciones.setPlaceholderText("Observaciones")
+        self.observaciones.setPlaceholderText("Problemas recurrentes")
         self.observaciones.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding: 5px; margin-top: 20px; font-weight: bold;")  # Añadido font-weight: bold
 
         grid_layout.addWidget(self.nota, 5, 1, 1, 4)

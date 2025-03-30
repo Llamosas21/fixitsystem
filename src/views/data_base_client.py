@@ -54,7 +54,7 @@ class BaseDateWindow(QWidget):
         # TÍTULO
         self.label_titulo = QLabel("FixItSystem")
         self.label_titulo.setFont(self.custom_font)
-        self.label_titulo.setStyleSheet("color: #102540; font-size: 30px; padding-top: 20px;")
+        self.label_titulo.setStyleSheet("color: #102540; font-size: 40px; padding-top: 20px;")
         self.label_titulo.setAlignment(Qt.AlignHCenter)
         
         # FRAME CONTENEDOR

@@ -53,10 +53,10 @@ class DatabaseCliente:
         query_clientes = """
             CREATE TABLE IF NOT EXISTS clientes (
                 id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL,
                 dispositivo TEXT NOT NULL,
-                correo TEXT NOT NULL,
-                telefono TEXT,
+                nombre TEXT NOT NULL,
+                telefono TEXT NOT NULL,
+                correo TEXT,
                 fecha_ingreso TEXT
             )
         """
@@ -65,16 +65,16 @@ class DatabaseCliente:
         except sqlite3.Error as e:
             print(f"❌ Error al crear las tablas: {e}")
 
-    def insertar_cliente(self, id_cliente, nombre, dispositivo, correo, telefono, fecha_ingreso):
+    def insertar_cliente(self, id_cliente, dispositivo, nombre, telefono, correo, fecha_ingreso):
         if not self.connection:
             print("❌ No hay conexión a la base de datos.")
             return
         query = """
-            INSERT INTO clientes (id_cliente, nombre, dispositivo, correo, telefono, fecha_ingreso)
+            INSERT INTO clientes (id_cliente, dispositivo, nombre, telefono, correo, fecha_ingreso)
             VALUES (?, ?, ?, ?, ?, ?)
         """
         try:
-            self.ejecutar_query(query, (id_cliente, nombre, dispositivo, correo, telefono, fecha_ingreso))
+            self.ejecutar_query(query, (id_cliente, dispositivo, nombre, telefono, correo, fecha_ingreso))
         except sqlite3.Error as e:
             print(f"❌ Error al insertar el cliente: {e}")
 
