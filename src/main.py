@@ -7,7 +7,7 @@ from PySide6.QtGui import QIcon
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from PySide6.QtWidgets import QApplication
-from src.views.data_base_client import BaseDateWindow  #from src.views.login import LoginWindow
+from src.views.add_date import UpdateWindow  #from src.views.login import LoginWindow
 
 """#Temporal
 from controllers.db_logical_client import DatabaseCliente
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     icon_path = os.path.join(os.path.dirname(__file__), "resources/icons/FixiSystem_logo.png")
     app.setWindowIcon(QIcon(icon_path))
 
-    ventana = BaseDateWindow()
+    ventana = UpdateWindow()
     ventana.show()
     sys.exit(app.exec())
 
