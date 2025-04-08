@@ -12,5 +12,5 @@ FixItSystem es una aplicación que permite gestionar datos de usuarios, administ
 
 ## Tecnologías Usadas
 - **Python**: Lenguaje de programación principal.
-- **PyQt**: Framework para la interfaz gráfica de usuario (GUI).
+- **PySide6**: Framework para la interfaz gráfica de usuario (GUI), basado en Qt.
 - **SQLite**: Base de datos ligera para almacenamiento de datos.
