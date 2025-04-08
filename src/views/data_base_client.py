@@ -3,9 +3,9 @@ from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, 
     QFrame, QLineEdit, QTableWidget, QTableWidgetItem, QHeaderView
 )
+from src.controllers.client_controller import ClientController
 from PySide6.QtGui import QFont, QFontDatabase, QIcon
 from PySide6.QtCore import Qt, QSize
-from controllers.client_controller import ClientController
 from views.add_date import UpdateWindow
 
 
@@ -13,24 +13,17 @@ class BaseDateWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("FixItSystem - Base de Datos")
+        self.controller = ClientController()
         self._configurar_ventana()
         self._cargar_fuente_personalizada()
-
-        # Inicializa el controlador
-        self.controller = ClientController()
-
-        # Crear la interfaz
         self._crear_interfaz()
-
-        # Cargar datos
         self._cargar_datos()
-    
+        
     def _configurar_ventana(self):
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMaximizeButtonHint)
         self.showMaximized()
         self.setStyleSheet("QWidget {background-color: #0d0d0d;}")
 
-    # DEDICADO AL TIPO DE LETRA   
     def _cargar_fuente_personalizada(self):
         font_path = os.path.join(os.path.dirname(__file__), '../resources/fonts/SongMyung-Regular.ttf')
         font_id = QFontDatabase.addApplicationFont(font_path)
@@ -43,7 +36,6 @@ class BaseDateWindow(QWidget):
             print("Error: No se encontró la familia de fuentes.")
             self.custom_font = QFont()
 
-    # FRAME PRINCIPAL
     def _crear_interfaz(self):
         self.frame = QFrame(self)
         self.frame.setFixedSize(1200, 700)
@@ -189,8 +181,12 @@ class BaseDateWindow(QWidget):
         self.arrow_button.clicked.connect(self.volver_al_inicio)    
 
     def _cargar_datos(self):
-        """Carga los datos desde el controlador y los muestra en el QTableWidget."""
         datos = self.controller.obtener_clientes()
+
+        if not datos:  
+                #print("⚠️ No se encontraron clientes en la base de datos.")
+                self.table_widget.setRowCount(0)
+                return
 
         # Configurar el número de filas en el QTableWidget
         self.table_widget.setRowCount(len(datos))
@@ -212,10 +208,10 @@ class BaseDateWindow(QWidget):
     def abrir_actualizar_base(self):
         self.actualizar = UpdateWindow()
         self.actualizar.show()
+        self.actualizar.closed.connect(self._cargar_datos)
         self.close()
     
     def closeEvent(self, event):
-        """Cierra la conexión al controlador al cerrar la ventana."""
         self.controller.cerrar_conexion()
         super().closeEvent(event)
 

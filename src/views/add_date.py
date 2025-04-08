@@ -1,21 +1,24 @@
 import os
+import uuid
 from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, 
     QFrame, QGridLayout, QLineEdit, QComboBox, QTextEdit, QDateEdit,QSpinBox
 )
 from PySide6.QtGui import QFont, QFontDatabase
-from PySide6.QtCore import Qt, QDate
+from PySide6.QtCore import Qt, QDate, Signal
 
 class UpdateWindow(QWidget):
+    closed = Signal()
     def __init__(self):
         super().__init__()
+        self.campos = {}
         self.setWindowTitle("FixItSystem - Actualizar Datos")
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMaximizeButtonHint)
         self.showMaximized()
         self.setStyleSheet("QWidget {background-color: #0d0d0d;}")
         self._cargar_fuente_personalizada()
         self._crear_interfaz()
-
+       
     def _cargar_fuente_personalizada(self):
         font_path = os.path.join(os.path.dirname(__file__), '../resources/fonts/SongMyung-Regular.ttf')
         font_id = QFontDatabase.addApplicationFont(font_path)
@@ -68,19 +71,20 @@ class UpdateWindow(QWidget):
 
         self.boton_volver = QPushButton("Volver", self)
         self.boton_historial = QPushButton("Historial", self)
-        self.boton_aceptar = QPushButton("Aceptar", self)
+        self.boton_agregar = QPushButton("Agregar", self)
 
-        for boton in [self.boton_volver, self.boton_historial, self.boton_aceptar]:
+        for boton in [self.boton_volver, self.boton_historial, self.boton_agregar]:
             boton.setStyleSheet(boton_estilo)
             boton.setFixedSize(120, 35)
 
         botones_layout = QHBoxLayout()
         botones_layout.addWidget(self.boton_volver)
         botones_layout.addWidget(self.boton_historial)
-        botones_layout.addWidget(self.boton_aceptar)
+        botones_layout.addWidget(self.boton_agregar)
         botones_layout.setAlignment(Qt.AlignCenter)
 
         self.boton_volver.clicked.connect(self.volver)
+        self.boton_agregar.clicked.connect(self.Agregar)
 
         frame_layout.addWidget(self.label_titulo, alignment=Qt.AlignHCenter | Qt.AlignTop)
         frame_layout.addWidget(self.frame_contenedor, alignment=Qt.AlignCenter)
@@ -111,6 +115,7 @@ class UpdateWindow(QWidget):
             "Pantalla", "Correo", "S.O.", "Ram", "Estado"
         ]
         self._agregar_campos(etiquetas)
+        self.cargar_datos_genericos()  # Cargar datos genericos
 
     def mostrar_campos_computadora(self):
         etiquetas = [
@@ -188,6 +193,7 @@ class UpdateWindow(QWidget):
                 campo.setFixedSize(130, 30)
                 campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
 
+            self.campos[texto.lower()] = campo
             fila, columna = divmod(i, columnas)
             self.grid_layout.addWidget(label, fila + 1, columna * 2)
             self.grid_layout.addWidget(campo, fila + 1, columna * 2 + 1)
@@ -210,8 +216,85 @@ class UpdateWindow(QWidget):
         """)
         self.grid_layout.addWidget(self.nota, fila_actual, 0, 1, columnas * 2)
 
+    def cargar_datos_genericos(self): #TEST ELIMINAR LUEGO
+        genericos = {
+            "nombre": "Juan Pérez",
+            "teléfono": "123456789",
+            "modelo": "Modelo X",
+            "placa": "ABC123",
+            "pantalla": "15.6 pulgadas",
+            "correo": "ejemplo@correo.com",
+            "s.o.": "Windows 11",
+            "ram": "16GB",
+            "procesador": "Intel i7",
+            "memoria": "512GB SSD",
+            "fuente": "500W",
+            "tarjeta gráfica": "NVIDIA GTX 1650",
+            "garantía": QDate.currentDate(),
+            "fecha de ingreso": QDate.currentDate(),
+            "estado": "New"
+        }
+
+        for clave, valor in genericos.items():
+            widget = self.campos.get(clave)
+            if isinstance(widget, QLineEdit):
+                widget.setText(valor)
+            elif isinstance(widget, QTextEdit):
+                widget.setPlainText(valor)
+            elif isinstance(widget, QComboBox):
+                index = widget.findText(valor)
+                if index != -1:
+                    widget.setCurrentIndex(index)
+            elif isinstance(widget, QDateEdit) and isinstance(valor, QDate):
+                widget.setDate(valor)
+        #print("Se Agregan los datos genéricos")
+
     def volver(self):
         from views.data_base_client import BaseDateWindow
         self.base = BaseDateWindow()
         self.base.show()
         self.close()
+
+    def Agregar(self):
+        from src.controllers.client_controller import ClientController
+        from src.views.alertas import mostrar_confirmacion
+
+        valor = mostrar_confirmacion("Confirmar alta de cliente","¿Estás seguro de que querés agregar este nuevo cliente a la base de datos?",400,400)
+        
+        if valor == True:
+            # Extraer los valores del formulario
+            fecha_widget = self.campos.get("fecha de ingreso")
+            if isinstance(fecha_widget, QDateEdit):
+                fecha_ingreso = fecha_widget.date().toString("yyyy-MM-dd")
+            else:
+                print("⚠️ Error: El campo 'Fecha de ingreso' no es un QDateEdit.")
+                return
+
+            id_cliente = str(uuid.uuid4())  # ✅ ID único generado automáticamente
+
+            datos = {
+                "id_cliente": id_cliente,
+                "nombre": self.campos["nombre"].text().strip(),
+                "dispositivo": self.campo_dispositivo.currentText(),
+                "telefono": self.campos["teléfono"].text().strip(),
+                "correo": self.campos["correo"].text().strip(), 
+                "fecha_ingreso": fecha_ingreso,
+            }
+
+            # Validaciones básicas
+            if not datos["nombre"] or not datos["telefono"] or not datos["correo"]:
+                print("⚠️ Error: Nombre, Teléfono y Correo son obligatorios")
+                return
+            
+            # Enviar datos al controlador
+            controller = ClientController()
+            resultado = controller.agregar_cliente(datos)
+
+
+            if not resultado:
+                print("Error al agregar cliente") #else:    print("📦 Datos preparados:", datos)
+        #else:print("Operación cancelada por el usuario.")
+
+def closeEvent(self, event):
+        self.closed.emit()  # Emitir señal al cerrar
+        super().closeEvent(event)

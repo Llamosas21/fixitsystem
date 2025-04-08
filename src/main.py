@@ -1,13 +1,18 @@
 import sys
 import os
 from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QApplication
+#from src.views.add_date import UpdateWindow  #
+from views.login import LoginWindow
 
+from src.model.client_model import ClienteModel
+
+# Crear la base de datos y las tablas si no existen
+cliente_model = ClienteModel()
+cliente_model.inicializar_base()
 
 # Agregar el directorio raíz del proyecto al PYTHONPATH
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from PySide6.QtWidgets import QApplication
-from src.views.add_date import UpdateWindow  #from src.views.login import LoginWindow
 
 """#Temporal
 from controllers.db_logical_client import DatabaseCliente
@@ -25,14 +30,12 @@ db.insertar_cliente(
 print("✅ Cliente insertado correctamente.")
 """
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     icon_path = os.path.join(os.path.dirname(__file__), "resources/icons/FixiSystem_logo.png")
     app.setWindowIcon(QIcon(icon_path))
 
-    ventana = UpdateWindow()
+    #ventana = UpdateWindow()
+    ventana = LoginWindow()
     ventana.show()
     sys.exit(app.exec())
-
-
