@@ -35,7 +35,34 @@ def mostrar_popup_notas(parent, table_widget, lista_computadoras, fila, columna)
                 font-size: 14px;
                 border: none;
             }
+
+            QScrollBar:vertical {
+                background: #102540;
+                width: 12px;
+                border: 1px solid #1e3f69;
+            }
+
+            QScrollBar::handle:vertical {
+                background: #4682B4;
+                min-height: 20px;
+            }
+
+            QScrollBar::add-line:vertical,
+            QScrollBar::sub-line:vertical {
+                background: none;
+                border: none;
+                height: 0px;
+            }
+
+            QScrollBar::add-page:vertical,
+            QScrollBar::sub-page:vertical {
+                background: none;
+            }
         """)
+
+
+
+
 
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(dialogo.accept)
@@ -48,8 +75,7 @@ def mostrar_popup_notas(parent, table_widget, lista_computadoras, fila, columna)
             }
             QPushButton:hover {
                 background-color: #1c3a5e;
-            }
-        """)
+            }""")
 
         layout.addWidget(caja_texto)
         layout.addWidget(boton_cerrar)
