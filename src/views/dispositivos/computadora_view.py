@@ -104,13 +104,35 @@ class BaseComputadoraWindow(QWidget):
                 background-color: #1e3f69;
                 color: white;
                 border: 2px solid #2a4a75;
-                border-radius: 1px;
             }
             QHeaderView::section {
                 background-color: #2a4a75;
                 color: white;
                 border: 2px solid #2a4a75;
+            }
+            
+            QScrollBar:horizontal {
+                background: #102540;
+                height: 12px;
+                border: 1px solid #1e3f69;
+            }
+
+            QScrollBar::handle:horizontal {
+                background: #4682B4;
+            }
+
+            QScrollBar::add-line:horizontal,
+            QScrollBar::sub-line:horizontal {
+                background: none;
+                border: none;
+                height: 0px;
+            }
+
+            QScrollBar::add-page:horizontal,
+            QScrollBar::sub-page:horizontal {
+                background: none;
             }""")
+
 
         # Agrega la tabla al layout (asegurate de tener frame_contenedor_layout creado)
         self.frame_contenedor.setLayout(frame_contenedor_layout)
