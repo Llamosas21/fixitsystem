@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
 from src.controllers.client_controller import ClientController
 from PySide6.QtGui import QFont, QFontDatabase, QIcon
 from PySide6.QtCore import Qt, QSize
-from views.add_date import UpdateWindow
+from views.utils.fonts import cargar_fuente_personalizada
 
 
 class BaseDateWindow(QWidget):
@@ -15,7 +15,7 @@ class BaseDateWindow(QWidget):
         self.setWindowTitle("FixItSystem - Base de Datos")
         self.controller = ClientController()
         self._configurar_ventana()
-        self._cargar_fuente_personalizada()
+        self.custom_font = cargar_fuente_personalizada()
         self._crear_interfaz()
         self._cargar_datos()
         
@@ -23,18 +23,6 @@ class BaseDateWindow(QWidget):
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMaximizeButtonHint)
         self.showMaximized()
         self.setStyleSheet("QWidget {background-color: #0d0d0d;}")
-
-    def _cargar_fuente_personalizada(self):
-        font_path = os.path.join(os.path.dirname(__file__), '../resources/fonts/SongMyung-Regular.ttf')
-        font_id = QFontDatabase.addApplicationFont(font_path)
-        font_families = QFontDatabase.applicationFontFamilies(font_id)
-        
-        if font_families:
-            self.custom_font = QFont(font_families[0])
-            self.custom_font.setBold(True)
-        else:
-            print("Error: No se encontró la familia de fuentes.")
-            self.custom_font = QFont()
 
     def _crear_interfaz(self):
         self.frame = QFrame(self)
@@ -71,8 +59,7 @@ class BaseDateWindow(QWidget):
                 margin-left: 30px;
                 margin-right: 30px;
             }
-            """
-        )
+            """)
         frame_contenedor_layout.addWidget(self.input_busqueda)
         
         # BASE DE DATOS
@@ -85,33 +72,31 @@ class BaseDateWindow(QWidget):
         self.table_widget = QTableWidget(self.frame_fondo_db)
         self.table_widget.setColumnCount(6)  # Número total de columnas en la tabla 'clientes'
         self.table_widget.setHorizontalHeaderLabels([
-            "ID Cliente", "Nombre", "Dispositivo", "Correo", "Teléfono",
-            "Fecha de ingreso"
+            "ID Cliente", "Nombre", "Dispositivo", "Correo", "telefono",
+            "fecha_de_ingreso"
         ])
         self.table_widget.setStyleSheet("""
         QTableWidget {
             background-color: #1e3f69;
             color: white;
             border: 2px solid #2a4a75;  /* Agrega un borde alrededor de la tabla */
-            border-radius: 1px;  /* Bordes redondeados */
-        }
+            border-radius: 1px;  /* Bordes redondeados */}
         QHeaderView::section {
             background-color: #2a4a75;
             color: white;
-            border: 2px solid #2a4a75;
-        }
+            border: 2px solid #2a4a75;}
         QHeaderView::section:vertical {
             background-color: #2a4a75;  /* Cambia el color del encabezado vertical */
             color: white;
-            border: 2px solid #2a4a75;
-        }
-    """)
+            border: 2px solid #2a4a75;}""")
+        
         self.table_widget.setGeometry(10, 10, self.frame_fondo_db.width() - 20, self.frame_fondo_db.height() - 20)
         self.table_widget.horizontalHeader().setStretchLastSection(True)  # Ajusta la última columna
         self.table_widget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)  # Ajusta todas las columnas
         self.table_widget.verticalHeader().setVisible(False)
         self.frame_contenedor.setLayout(frame_contenedor_layout)
-        
+        self.table_widget.cellClicked.connect(self.celda_clickeada)
+      
         # BOTONES DE NAVEGACIÓN
         boton_estilo = (
             """
@@ -124,8 +109,7 @@ class BaseDateWindow(QWidget):
             QPushButton:hover {
                 background-color: #2a4a75;
             }
-            """
-        )
+            """)
         
         self.boton_Agregar = QPushButton("Agregar")
         self.boton_Editar = QPushButton("Editar")
@@ -168,9 +152,7 @@ class BaseDateWindow(QWidget):
             QPushButton {
                 background-color: transparent;  
                 border: none;  
-            }
-            """
-        )
+            }""")
 
         # Ajustar el tamaño del botón
         self.arrow_button.setIconSize(icon_size)
@@ -179,7 +161,7 @@ class BaseDateWindow(QWidget):
 
         # Acción del botón
         self.arrow_button.clicked.connect(self.volver_al_inicio)    
-
+    
     def _cargar_datos(self):
         datos = self.controller.obtener_clientes()
 
@@ -206,11 +188,46 @@ class BaseDateWindow(QWidget):
         self.close()
 
     def abrir_actualizar_base(self):
+        from views.add_date import UpdateWindow
         self.actualizar = UpdateWindow()
         self.actualizar.show()
         self.actualizar.closed.connect(self._cargar_datos)
         self.close()
     
+    def celda_clickeada(self, row, column):
+        if self.table_widget.horizontalHeaderItem(column).text() == "Dispositivo":
+            dispositivo = self.table_widget.item(row, column).text().lower()  # Convertir a minúsculas
+
+            # Diccionario de dispositivos y vistas asociadas
+            vistas_dispositivos = {
+                "computadora": ("computadora_view", "BaseComputadoraWindow"),
+                "notebook": ("notebook_view", "BaseNotebookWindow"),
+                "consola": ("consola_view", "BaseConsolaWindow"),
+                "celular": ("celular_view", "BaseCelularWindow"),
+                "tablet": ("tablet_view", "BaseTabletWindow"),
+                "personalizado": ("personalizado_view", "BasePersonalizadoWindow"),
+            }
+
+            clase_view = vistas_dispositivos.get(dispositivo)
+            #print(clase_view)  # Verifica el nombre del archivo a importar
+
+            if clase_view:
+                nombre_modulo, nombre_clase = clase_view
+                self.abrir_vista_dinamica(nombre_modulo, nombre_clase)
+            else:
+                print(f"⚠️ Vista no definida para el dispositivo: {dispositivo}")
+
+    def abrir_vista_dinamica(self, nombre_modulo, nombre_clase):
+        try:
+            modulo = __import__(f"src.views.dispositivos.{nombre_modulo}", fromlist=[nombre_clase])
+            clase = getattr(modulo, nombre_clase)
+            self.vista = clase()
+            self.vista.show()
+            self.close()
+        except Exception as e:
+            print(f"❌ Error al abrir la vista {nombre_modulo}: {e}")
+
+            
     def closeEvent(self, event):
         self.controller.cerrar_conexion()
         super().closeEvent(event)

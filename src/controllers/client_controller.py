@@ -3,7 +3,6 @@ from model.client_model import ClienteModel
 class ClientController:
     def __init__(self):
         self.db = ClienteModel()
-        self.db.conectar()
 
     def agregar_cliente(self, datos):
         """Agrega un cliente a la base de datos."""

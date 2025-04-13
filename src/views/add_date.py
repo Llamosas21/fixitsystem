@@ -1,11 +1,11 @@
 import os
-import uuid
 from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, 
     QFrame, QGridLayout, QLineEdit, QComboBox, QTextEdit, QDateEdit,QSpinBox
 )
-from PySide6.QtGui import QFont, QFontDatabase
+
 from PySide6.QtCore import Qt, QDate, Signal
+from views.utils.fonts import cargar_fuente_personalizada
 
 class UpdateWindow(QWidget):
     closed = Signal()
@@ -16,15 +16,9 @@ class UpdateWindow(QWidget):
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMaximizeButtonHint)
         self.showMaximized()
         self.setStyleSheet("QWidget {background-color: #0d0d0d;}")
-        self._cargar_fuente_personalizada()
+        self.custom_font = cargar_fuente_personalizada()
         self._crear_interfaz()
        
-    def _cargar_fuente_personalizada(self):
-        font_path = os.path.join(os.path.dirname(__file__), '../resources/fonts/SongMyung-Regular.ttf')
-        font_id = QFontDatabase.addApplicationFont(font_path)
-        font_families = QFontDatabase.applicationFontFamilies(font_id)
-        self.custom_font = QFont(font_families[0], 14, QFont.Bold) if font_families else QFont()
-
     def _crear_interfaz(self):
         self.frame = QFrame(self)
         self.frame.setFixedSize(1200, 700)
@@ -110,50 +104,50 @@ class UpdateWindow(QWidget):
 
     def mostrar_campos_personalizado(self):
         etiquetas = [
-            "Fecha de ingreso", "Procesador", "Tarjeta gráfica", "Nombre", "Garantía",
-            "Memoria", "Placa", "Teléfono", "Modelo", "Fuente", 
-            "Pantalla", "Correo", "S.O.", "Ram", "Estado"
+            "fecha_de_ingreso", "Procesador", "tarjeta_grafica", "Nombre", "garantia",
+            "Memoria", "Placa", "telefono", "Modelo", "Fuente", 
+            "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado"
+        ]
+        self._agregar_campos(etiquetas)
+       
+    def mostrar_campos_computadora(self):
+        etiquetas = [
+            "fecha_de_ingreso", "Procesador", "tarjeta_grafica", "Nombre", "garantia",
+            "Memoria", "Placa", "telefono", "Modelo", "Fuente", 
+            "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado"
         ]
         self._agregar_campos(etiquetas)
         self.cargar_datos_genericos()  # Cargar datos genericos
 
-    def mostrar_campos_computadora(self):
-        etiquetas = [
-            "Fecha de ingreso", "Procesador", "Tarjeta gráfica", "Nombre", "Garantía",
-            "Memoria", "Placa", "Teléfono", "Modelo", "Fuente", 
-            "Pantalla", "Correo", "S.O.", "Ram", "Estado"
-        ]
-        self._agregar_campos(etiquetas)
-
     def mostrar_campos_notebook(self):
         etiquetas = [
-            "Fecha de ingreso", "Estado Cargador", "Tarjeta gráfica", "Nombre", "Garantía",
-            "Procesador", "Placa", "Teléfono", "Modelo", "Memoria", 
+            "fecha_de_ingreso", "Estado Cargador", "tarjeta_grafica", "Nombre", "garantia",
+            "Procesador", "Placa", "telefono", "Modelo", "Memoria", 
             "Pantalla", "Correo", "TIM", "Ram", "Estado"
         ]
         self._agregar_campos(etiquetas)
 
     def mostrar_campos_consola(self):
         etiquetas = [
-            "Fecha de ingreso", "Procesador", "Cantidad Mandos", "Nombre", "Garantía",
-            "Memoria", "Mandos estado", "Teléfono", "Modelo", "Pantalla", 
-            "Correo", "S.O.", "Ram", "Estado", "TIM"
+            "fecha_de_ingreso", "Procesador", "Cantidad Mandos", "Nombre", "garantia",
+            "Memoria", "Mandos estado", "telefono", "Modelo", "Pantalla", 
+            "Correo", "sistema_operativo", "Ram", "Estado", "TIM"
         ]
         self._agregar_campos(etiquetas)
 
     def mostrar_campos_celular(self):
         etiquetas = [
-            "Fecha de ingreso", "Estado Cargador", "Bateria", "Nombre", "Garantía",
-            "Memoria", "Placa", "Teléfono", "Modelo", "Pantalla", 
-            "Correo", "S.O.", "Ram", "Estado"
+            "fecha_de_ingreso", "Estado Cargador", "Bateria", "Nombre", "garantia",
+            "Memoria", "Placa", "telefono", "Modelo", "Pantalla", 
+            "Correo", "sistema_operativo", "Ram", "Estado"
         ]
         self._agregar_campos(etiquetas)
 
     def mostrar_campos_tablet(self):
         etiquetas = [
-            "Fecha de ingreso", "Estado Cargador", "Bateria", "Nombre", "Garantía",
-            "Memoria", "Placa", "Teléfono", "Modelo", "Pantalla", 
-            "Correo", "S.O.", "Ram", "Estado"
+            "fecha_de_ingreso", "Estado Cargador", "Bateria", "Nombre", "garantia",
+            "Memoria", "Placa", "telefono", "Modelo", "Pantalla", 
+            "Correo", "sistema_operativo", "Ram", "Estado"
         ]
         self._agregar_campos(etiquetas)
 
@@ -164,8 +158,8 @@ class UpdateWindow(QWidget):
             label.setStyleSheet("color: white; font-size: 12px; font-weight: bold;")
             label.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
 
-            # Campos especiales para "Fecha de ingreso" y "Garantía"
-            if texto in ["Fecha de ingreso", "Garantía"]:
+            # Campos especiales para "fecha_de_ingreso" y "garantia"
+            if texto in ["fecha_de_ingreso", "garantia"]:
                 campo = QDateEdit(self)
                 campo.setDate(QDate.currentDate())  
                 campo.setDisplayFormat("dd-MM-yyyy")  
@@ -216,22 +210,22 @@ class UpdateWindow(QWidget):
         """)
         self.grid_layout.addWidget(self.nota, fila_actual, 0, 1, columnas * 2)
 
-    def cargar_datos_genericos(self): #TEST ELIMINAR LUEGO
+    def cargar_datos_genericos(self): #PARA HACER TEST EN CASO DE NO USARSE COMENTAR 
         genericos = {
             "nombre": "Juan Pérez",
-            "teléfono": "123456789",
+            "telefono": "123456789",
             "modelo": "Modelo X",
             "placa": "ABC123",
             "pantalla": "15.6 pulgadas",
             "correo": "ejemplo@correo.com",
-            "s.o.": "Windows 11",
+            "sistema_operativo": "Windows 11",
             "ram": "16GB",
             "procesador": "Intel i7",
             "memoria": "512GB SSD",
             "fuente": "500W",
-            "tarjeta gráfica": "NVIDIA GTX 1650",
-            "garantía": QDate.currentDate(),
-            "fecha de ingreso": QDate.currentDate(),
+            "tarjeta_grafica": "NVIDIA GTX 1650",
+            "garantia": QDate.currentDate(),
+            "fecha_de_ingreso": QDate.currentDate(),
             "estado": "New"
         }
 
@@ -247,7 +241,7 @@ class UpdateWindow(QWidget):
                     widget.setCurrentIndex(index)
             elif isinstance(widget, QDateEdit) and isinstance(valor, QDate):
                 widget.setDate(valor)
-        #print("Se Agregan los datos genéricos")
+        #print("Se Agregan los datos genericos")
 
     def volver(self):
         from views.data_base_client import BaseDateWindow
@@ -258,42 +252,96 @@ class UpdateWindow(QWidget):
     def Agregar(self):
         from src.controllers.client_controller import ClientController
         from src.views.alertas import mostrar_confirmacion
+        import uuid
 
-        valor = mostrar_confirmacion("Confirmar alta de cliente","¿Estás seguro de que querés agregar este nuevo cliente a la base de datos?",400,400)
-        
+        valor = mostrar_confirmacion("Confirmar alta de cliente","¿Estás seguro de que querés agregar este nuevo cliente a la base de datos?",400, 400)
+
         if valor == True:
             # Extraer los valores del formulario
-            fecha_widget = self.campos.get("fecha de ingreso")
+            fecha_widget = self.campos.get("fecha_de_ingreso")
             if isinstance(fecha_widget, QDateEdit):
                 fecha_ingreso = fecha_widget.date().toString("yyyy-MM-dd")
             else:
-                print("⚠️ Error: El campo 'Fecha de ingreso' no es un QDateEdit.")
+                print("⚠️ Error: El campo 'fecha_de_ingreso' no es un QDateEdit.")
                 return
 
-            id_cliente = str(uuid.uuid4())  # ✅ ID único generado automáticamente
+            id_cliente = uuid.uuid4().hex[:16]  # 16 caracteres únicos 
+
 
             datos = {
                 "id_cliente": id_cliente,
                 "nombre": self.campos["nombre"].text().strip(),
                 "dispositivo": self.campo_dispositivo.currentText(),
-                "telefono": self.campos["teléfono"].text().strip(),
-                "correo": self.campos["correo"].text().strip(), 
+                "telefono": self.campos["telefono"].text().strip(),
+                "correo": self.campos["correo"].text().strip(),
                 "fecha_ingreso": fecha_ingreso,
             }
 
             # Validaciones básicas
             if not datos["nombre"] or not datos["telefono"] or not datos["correo"]:
-                print("⚠️ Error: Nombre, Teléfono y Correo son obligatorios")
+                print("⚠️ Error: Nombre, telefono y Correo son obligatorios")
                 return
-            
+
             # Enviar datos al controlador
             controller = ClientController()
             resultado = controller.agregar_cliente(datos)
 
-
             if not resultado:
-                print("Error al agregar cliente") #else:    print("📦 Datos preparados:", datos)
-        #else:print("Operación cancelada por el usuario.")
+                print("Error al agregar cliente")
+                return
+            #else: print("📦 Datos preparados:", datos)
+
+            # Si se agregó el cliente con éxito, agregar el dispositivo correspondiente
+            dispositivos_controladores = {
+                "Computadora": ("src.controllers.dispositivo_controller.computadora_controller", "ComputadoraController", "agregar_computadora"),
+                "Notebook": ("src.controllers.dispositivo_controller.notebook_controller", "NotebookController", "agregar_notebook"),
+                "Consola": ("src.controllers.dispositivo_controller.consola_controller", "ConsolaController", "agregar_consola"),
+                "Celular": ("src.controllers.dispositivo_controller.celular_controller", "CelularController", "agregar_celular"),
+                "Tablet": ("src.controllers.dispositivo_controller.tablet_controller", "TabletController", "agregar_tablet"),
+                "Personalizado": ("src.controllers.dispositivo_controller.personalizado_controller", "PersonalizadoController", "agregar_personalizado"),
+            }
+
+            dispositivo = datos["dispositivo"]
+            modulo_path, clase_nombre, metodo_agregar = dispositivos_controladores.get(dispositivo, (None, None, None))
+
+        if modulo_path:
+            modulo = __import__(modulo_path, fromlist=[clase_nombre])
+            clase_controlador = getattr(modulo, clase_nombre)
+            try:
+                controlador = clase_controlador()
+            except Exception as e:
+                print(f"❌ Error al instanciar el controlador '{clase_nombre}': {e}")
+                import traceback
+                traceback.print_exc()
+                return
+
+            # Extraer campos del formulario según el dispositivo
+            campos_dispositivo = {}
+            for etiqueta, widget in self.campos.items():
+                clave = etiqueta.lower().replace(" ", "_")
+
+                if hasattr(widget, "text"):  # QLineEdit
+                    campos_dispositivo[clave] = widget.text().strip()
+
+                elif isinstance(widget, QDateEdit):
+                    campos_dispositivo[clave] = widget.date().toString("yyyy-MM-dd")
+
+                elif isinstance(widget, QComboBox):
+                    campos_dispositivo[clave] = widget.currentText()
+
+            # Agregar notas si el campo existe
+            if hasattr(self, "nota"):
+                campos_dispositivo["notas"] = self.nota.toPlainText().strip()
+
+            # Relaciona con el cliente creado
+            campos_dispositivo["id_cliente"] = id_cliente
+
+            # Llamar al método específico del controlador
+            metodo = getattr(controlador, metodo_agregar)
+            metodo(**campos_dispositivo)
+
+        else:
+            print(f"⚠️ No se encontró un controlador para el dispositivo: {dispositivo}")# else: print("Operación cancelada por el usuario.")
 
 def closeEvent(self, event):
         self.closed.emit()  # Emitir señal al cerrar

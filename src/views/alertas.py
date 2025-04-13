@@ -24,3 +24,10 @@ def mostrar_info(titulo, mensaje,ancho,alto):
     msg.setIcon(QMessageBox.Information)
     msg.resize(ancho,alto)
     msg.exec()
+
+
+"""
+    Método que controla lo que se hace al presionar el registro que contiene
+    las notas referidas al producto. Muestra un popup con las notas completas
+    del producto seleccionado.
+"""
