@@ -4,9 +4,9 @@ from PySide6.QtWidgets import (
     QFrame, QLineEdit, QTableWidget, QTableWidgetItem, QHeaderView
 )
 from src.controllers.client_controller import ClientController
-from PySide6.QtGui import QFont, QFontDatabase, QIcon
+from PySide6.QtGui import  QIcon
 from PySide6.QtCore import Qt, QSize
-from views.utils.fonts import cargar_fuente_personalizada
+from views.utils.resource_finder import cargar_fuente_personalizada
 
 
 class BaseDateWindow(QWidget):
@@ -111,23 +111,19 @@ class BaseDateWindow(QWidget):
             }
             """)
         
-        self.boton_Agregar = QPushButton("Agregar")
-        self.boton_Editar = QPushButton("Editar")
-        self.boton_Eliminar = QPushButton("Eliminar")
         
-        for boton in [self.boton_Agregar, self.boton_Editar, self.boton_Eliminar]:
-            boton.setStyleSheet(boton_estilo)
-            boton.setFixedSize(120, 35)
-        
-        # LAYOUT DE BOTONES
+        # Solo un botón, renombrado a "Modificar"
+        self.boton_Modificar = QPushButton("Modificar")
+        self.boton_Modificar.setStyleSheet(boton_estilo)
+        self.boton_Modificar.setFixedSize(120, 35)
+
+        # LAYOUT DE BOTÓN
         botones_layout = QHBoxLayout()
-        botones_layout.addWidget(self.boton_Agregar)
-        botones_layout.addWidget(self.boton_Editar)
-        botones_layout.addWidget(self.boton_Eliminar)
+        botones_layout.addWidget(self.boton_Modificar)
         botones_layout.setAlignment(Qt.AlignCenter)
 
-        # ACCIONES DE LOS BOTONES
-        self.boton_Agregar.clicked.connect(self.abrir_actualizar_base)
+        # ACCIÓN DEL BOTÓN "Modificar"
+        self.boton_Modificar.clicked.connect(self.abrir_actualizar_base)
         
         # ORGANIZAR ELEMENTOS
         frame_layout.addWidget(self.label_titulo, alignment=Qt.AlignHCenter | Qt.AlignTop)
