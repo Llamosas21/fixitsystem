@@ -1,34 +1,21 @@
-from PySide6.QtGui import QIcon
-
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QTextEdit, QPushButton
-from PySide6.QtCore import Qt
 
-def mostrar_popup_notas(parent, table_widget, lista_computadoras, fila, columna):
-    nombre_columna = table_widget.horizontalHeaderItem(columna).text()
-    if nombre_columna.lower() == "notas":
-        id_cliente = table_widget.item(fila, 1).text()
 
-        nota_completa = ""
-        for computadora in lista_computadoras:
-            if computadora["id_cliente"] == id_cliente:
-                nota_completa = computadora.get("notas", "")
-                break
+class DialogoNotas(QDialog):
+    def __init__(self, parent, nota):
+        super().__init__(parent)
+        self.setWindowTitle("Notas")
+        self.setFixedSize(625, 404)  # Tamaño fijo
 
-        dialogo = QDialog(parent)
-        dialogo.setWindowTitle("Notas")
-        dialogo.setMinimumSize(400, 300)
+        layout = QVBoxLayout(self)
 
-        layout = QVBoxLayout(dialogo)
+        self.caja_texto = QTextEdit()
+        self.caja_texto.setReadOnly(True)
+        
+        nota_limpia = nota.strip() if nota and nota.strip() else "(Sin notas)"
+        self.caja_texto.setText(nota_limpia)
 
-        caja_texto = QTextEdit()
-        caja_texto.setReadOnly(True)
-        caja_texto.setText(nota_completa or "(Sin notas)")
-
-        # Asegurar scroll automático
-        caja_texto.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        caja_texto.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-        caja_texto.setStyleSheet("""
+        self.caja_texto.setStyleSheet("""
             QTextEdit {
                 background-color: #1F3F68;
                 color: white;
@@ -59,13 +46,13 @@ def mostrar_popup_notas(parent, table_widget, lista_computadoras, fila, columna)
                 background: none;
             }
         """)
-
-
-
+        self.move(
+            parent.geometry().center() - self.rect().center()
+        )
 
 
         boton_cerrar = QPushButton("Cerrar")
-        boton_cerrar.clicked.connect(dialogo.accept)
+        boton_cerrar.clicked.connect(self.accept)
         boton_cerrar.setStyleSheet("""
             QPushButton {
                 background-color: #102540;
@@ -77,9 +64,21 @@ def mostrar_popup_notas(parent, table_widget, lista_computadoras, fila, columna)
                 background-color: #1c3a5e;
             }""")
 
-        layout.addWidget(caja_texto)
+        layout.addWidget(self.caja_texto)
         layout.addWidget(boton_cerrar)
 
-        dialogo.setStyleSheet("QDialog { background-color: #1F3F68; }")
+        self.setStyleSheet("QDialog { background-color: #1F3F68; }")
 
+def mostrar_popup_notas(parent, table_widget, lista_computadoras, fila, columna):
+    nombre_columna = table_widget.horizontalHeaderItem(columna).text()
+    if nombre_columna.lower() == "notas":
+        id_cliente = table_widget.item(fila, 1).text()
+
+        nota_completa = ""
+        for computadora in lista_computadoras:
+            if computadora["id_cliente"] == id_cliente:
+                nota_completa = computadora.get("notas", "")
+                break
+
+        dialogo = DialogoNotas(parent, nota_completa)
         dialogo.exec()
