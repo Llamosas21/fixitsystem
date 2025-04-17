@@ -3,10 +3,10 @@ from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, 
     QFrame, QLineEdit, QTableWidget, QTableWidgetItem, QHeaderView
 )
-from PySide6.QtGui import QFont, QFontDatabase, QIcon
+from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QSize
 from src.controllers.dispositivo_controller.computadora_controller import ComputadoraController
-from views.utils.fonts import cargar_fuente_personalizada
+from views.utils.resource_finder import cargar_fuente_personalizada
 
 
 class BaseComputadoraWindow(QWidget):
@@ -234,8 +234,6 @@ class BaseComputadoraWindow(QWidget):
 
                 self.table_widget.setItem(fila, columna, item)
 
-
-
     def insertar_en_tabla_dinamica(self, fila):
         row_position = self.table_widget.rowCount()
         self.table_widget.insertRow(row_position)
@@ -251,11 +249,10 @@ class BaseComputadoraWindow(QWidget):
         si la columna es "Notas"..."""
         mostrar_popup_notas(self, self.table_widget, self.lista_computadoras_original, fila, columna)
 
-
     def volver(self):
-        from views.start import StartWindow
-        self.start = StartWindow()
-        self.start.show()
+        from views.data_base_client import BaseDateWindow
+        self.base = BaseDateWindow()
+        self.base.show()
         self.close()
         
     def volver_al_inicio(self):
