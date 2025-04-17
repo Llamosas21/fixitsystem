@@ -1,11 +1,11 @@
 import os
 from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, 
-    QFrame, QGridLayout, QLineEdit, QComboBox, QTextEdit, QDateEdit,QSpinBox
+    QFrame, QGridLayout, QLineEdit, QComboBox, QTextEdit, QDateEdit,QSpinBox,QStyle
 )
-
-from PySide6.QtCore import Qt, QDate, Signal
-from views.utils.fonts import cargar_fuente_personalizada
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt, QDate, Signal, QSize
+from views.utils.resource_finder import cargar_fuente_personalizada
 
 class UpdateWindow(QWidget):
     closed = Signal()
@@ -25,17 +25,20 @@ class UpdateWindow(QWidget):
         self.frame.setStyleSheet("QFrame {background-color: #3084f2; border-radius: 15px;}")
 
         frame_layout = QVBoxLayout(self.frame)
-        frame_layout.setSpacing(10)
+        frame_layout.setSpacing(20)
 
+        # TÍTULO
         self.label_titulo = QLabel("FixItSystem", self)
         self.label_titulo.setFont(self.custom_font)
-        self.label_titulo.setStyleSheet("color: #102540; font-size: 40px; padding-top: 15px;")
+        self.label_titulo.setStyleSheet("color: #102540; font-size: 40px; padding-top: 20px;")
         self.label_titulo.setAlignment(Qt.AlignHCenter)
 
+        # FRAME CONTENEDOR
         self.frame_contenedor = QFrame(self.frame)
         self.frame_contenedor.setFixedSize(1000, 500)
         self.frame_contenedor.setStyleSheet("QFrame {background-color: #102540; border-radius: 20px;}")
 
+        # GRID LAYOUT dentro del contenedor
         self.grid_layout = QGridLayout()
         self.campo_dispositivo = QComboBox()
         self.campo_dispositivo.addItems(["Personalizado", "Computadora", "Notebook", "Consola", "Celular", "Tablet"])
@@ -45,11 +48,12 @@ class UpdateWindow(QWidget):
 
         self.grid_layout.addWidget(self.campo_dispositivo, 0, 0, 1, 2)
         self.mostrar_campos_personalizado()
-        self.grid_layout.setVerticalSpacing(10)  # Reduce el espacio vertical entre filas
+        self.grid_layout.setVerticalSpacing(10)
 
         frame_contenedor_layout = QVBoxLayout(self.frame_contenedor)
         frame_contenedor_layout.addLayout(self.grid_layout)
 
+        # BOTONES (Editar, Agregar, Eliminar)
         boton_estilo = """
             QPushButton {
                 background-color: #102540;
@@ -63,30 +67,52 @@ class UpdateWindow(QWidget):
             }
         """
 
-        self.boton_volver = QPushButton("Volver", self)
-        self.boton_historial = QPushButton("Historial", self)
+        self.boton_editar = QPushButton("Editar", self)
         self.boton_agregar = QPushButton("Agregar", self)
+        self.boton_eliminar = QPushButton("Eliminar", self)
 
-        for boton in [self.boton_volver, self.boton_historial, self.boton_agregar]:
+        for boton in [self.boton_editar, self.boton_agregar, self.boton_eliminar]:
             boton.setStyleSheet(boton_estilo)
             boton.setFixedSize(120, 35)
 
         botones_layout = QHBoxLayout()
-        botones_layout.addWidget(self.boton_volver)
-        botones_layout.addWidget(self.boton_historial)
+        botones_layout.addWidget(self.boton_editar)
         botones_layout.addWidget(self.boton_agregar)
+        botones_layout.addWidget(self.boton_eliminar)
         botones_layout.setAlignment(Qt.AlignCenter)
 
-        self.boton_volver.clicked.connect(self.volver)
-        self.boton_agregar.clicked.connect(self.Agregar)
+        # Acciones
+        self.boton_agregar.clicked.connect(self.agregar)
 
+        # Agregar al frame layout
         frame_layout.addWidget(self.label_titulo, alignment=Qt.AlignHCenter | Qt.AlignTop)
         frame_layout.addWidget(self.frame_contenedor, alignment=Qt.AlignCenter)
         frame_layout.addLayout(botones_layout)
 
+        # LAYOUT PRINCIPAL
         layout_principal = QVBoxLayout(self)
         layout_principal.addWidget(self.frame, alignment=Qt.AlignCenter)
         self.setLayout(layout_principal)
+
+        # BOTÓN RETROCESO (posición fija, fuera del layout)
+        self.arrow_button = QPushButton(self.frame)
+        arrow = os.path.join(os.path.dirname(__file__), '../resources/icons/icons8-sort-left-30.png')
+        icon = QIcon(arrow)
+        self.arrow_button.setIcon(icon)
+        self.arrow_button.setIconSize(QSize(50, 50))
+        self.arrow_button.setFixedSize(30, 30)
+        self.arrow_button.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                border: none;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+                border-radius: 5px;
+            }
+        """)
+        self.arrow_button.move(20, 20)  # Posición absoluta, como en la segunda interfaz
+        self.arrow_button.clicked.connect(self.volver)
 
     def limpiar_grid_layout(self):
         """Limpia todos los widgets del grid_layout excepto el QComboBox."""
@@ -94,7 +120,7 @@ class UpdateWindow(QWidget):
             widget = self.grid_layout.itemAt(i).widget()
             if widget and widget != self.campo_dispositivo:
                 widget.deleteLater()
-
+           
     def actualizar_campos_por_dispositivo(self):
         """Actualiza los campos según el dispositivo seleccionado."""
         self.limpiar_grid_layout()
@@ -106,16 +132,14 @@ class UpdateWindow(QWidget):
         etiquetas = [
             "fecha_de_ingreso", "Procesador", "tarjeta_grafica", "Nombre", "garantia",
             "Memoria", "Placa", "telefono", "Modelo", "Fuente", 
-            "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado"
-        ]
+            "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado"]
         self._agregar_campos(etiquetas)
        
     def mostrar_campos_computadora(self):
         etiquetas = [
             "fecha_de_ingreso", "Procesador", "tarjeta_grafica", "Nombre", "garantia",
             "Memoria", "Placa", "telefono", "Modelo", "Fuente", 
-            "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado"
-        ]
+            "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado"]
         self._agregar_campos(etiquetas)
         self.cargar_datos_genericos()  # Cargar datos genericos
 
@@ -123,32 +147,28 @@ class UpdateWindow(QWidget):
         etiquetas = [
             "fecha_de_ingreso", "Estado Cargador", "tarjeta_grafica", "Nombre", "garantia",
             "Procesador", "Placa", "telefono", "Modelo", "Memoria", 
-            "Pantalla", "Correo", "TIM", "Ram", "Estado"
-        ]
+            "Pantalla", "Correo", "TIM", "Ram", "Estado"]
         self._agregar_campos(etiquetas)
 
     def mostrar_campos_consola(self):
         etiquetas = [
             "fecha_de_ingreso", "Procesador", "Cantidad Mandos", "Nombre", "garantia",
             "Memoria", "Mandos estado", "telefono", "Modelo", "Pantalla", 
-            "Correo", "sistema_operativo", "Ram", "Estado", "TIM"
-        ]
+            "Correo", "sistema_operativo", "Ram", "Estado", "TIM"]
         self._agregar_campos(etiquetas)
 
     def mostrar_campos_celular(self):
         etiquetas = [
             "fecha_de_ingreso", "Estado Cargador", "Bateria", "Nombre", "garantia",
             "Memoria", "Placa", "telefono", "Modelo", "Pantalla", 
-            "Correo", "sistema_operativo", "Ram", "Estado"
-        ]
+            "Correo", "sistema_operativo", "Ram", "Estado"]
         self._agregar_campos(etiquetas)
 
     def mostrar_campos_tablet(self):
         etiquetas = [
             "fecha_de_ingreso", "Estado Cargador", "Bateria", "Nombre", "garantia",
             "Memoria", "Placa", "telefono", "Modelo", "Pantalla", 
-            "Correo", "sistema_operativo", "Ram", "Estado"
-        ]
+            "Correo", "sistema_operativo", "Ram", "Estado"]
         self._agregar_campos(etiquetas)
 
     def _agregar_campos(self, etiquetas):
@@ -226,8 +246,7 @@ class UpdateWindow(QWidget):
             "tarjeta_grafica": "NVIDIA GTX 1650",
             "garantia": QDate.currentDate(),
             "fecha_de_ingreso": QDate.currentDate(),
-            "estado": "New"
-        }
+            "estado": "New"}
 
         for clave, valor in genericos.items():
             widget = self.campos.get(clave)
@@ -249,7 +268,7 @@ class UpdateWindow(QWidget):
         self.base.show()
         self.close()
 
-    def Agregar(self):
+    def agregar(self):
         from src.controllers.client_controller import ClientController
         from src.views.alertas import mostrar_confirmacion
         import uuid
