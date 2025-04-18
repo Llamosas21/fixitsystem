@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QMessageBox, QInputDialog, QLineEdit
 
 def mostrar_confirmacion(titulo, mensaje,ancho,alto):
     msg = QMessageBox()
@@ -24,10 +24,12 @@ def mostrar_info(titulo, mensaje,ancho,alto):
     msg.setIcon(QMessageBox.Information)
     msg.resize(ancho,alto)
     msg.exec()
-
-
-"""
-    Método que controla lo que se hace al presionar el registro que contiene
-    las notas referidas al producto. Muestra un popup con las notas completas
-    del producto seleccionado.
+    
+""" Alerta no funcional 
+def pedir_id_cliente(titulo="Editar Cliente", mensaje="Ingresá el ID del cliente a editar"):
+    id_cliente, ok = QInputDialog.getText(None, titulo, mensaje, QLineEdit.Normal)
+    if ok and id_cliente.strip():
+        return id_cliente.strip()
+    else:
+        return None
 """
