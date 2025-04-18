@@ -82,6 +82,7 @@ class UpdateWindow(QWidget):
         botones_layout.setAlignment(Qt.AlignCenter)
 
         # Acciones
+        self.boton_editar.clicked.connect(self.editar)
         self.boton_agregar.clicked.connect(self.agregar)
 
         # Agregar al frame layout
@@ -141,7 +142,7 @@ class UpdateWindow(QWidget):
             "Memoria", "Placa", "telefono", "Modelo", "Fuente", 
             "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado"]
         self._agregar_campos(etiquetas)
-        self.cargar_datos_genericos()  # Cargar datos genericos
+        #self.cargar_datos_genericos()  # Cargar datos genericos
 
     def mostrar_campos_notebook(self):
         etiquetas = [
@@ -229,6 +230,7 @@ class UpdateWindow(QWidget):
             font-weight: bold;
         """)
         self.grid_layout.addWidget(self.nota, fila_actual, 0, 1, columnas * 2)
+        self.campos["notas"] = self.nota
 
     def cargar_datos_genericos(self): #PARA HACER TEST EN CASO DE NO USARSE COMENTAR 
         genericos = {
@@ -262,11 +264,180 @@ class UpdateWindow(QWidget):
                 widget.setDate(valor)
         #print("Se Agregan los datos genericos")
 
+#MÉTODOS PARA CARGAR LOS DATOS DESDE celda_clickeada (data_base_client.py)
+
+    def cargar_datos_editar(self, cliente_seleccionado, dispositivos):
+        self.id_cliente = cliente_seleccionado.get("ID Cliente")
+        dispositivo = dispositivos[0]
+        tipo_dispositivo = cliente_seleccionado.get("Dispositivo")
+
+        # Evita que se dispare el cambio automáticamente
+        self.campo_dispositivo.blockSignals(True)
+        self.campo_dispositivo.setCurrentText(tipo_dispositivo)
+        self.campo_dispositivo.blockSignals(False)
+
+        if tipo_dispositivo == "Computadora":
+            self.mostrar_campos_computadora()
+            self.cargar_datos_dispositivo(dispositivo)
+        elif tipo_dispositivo == "Notebook":
+            self.mostrar_campos_notebook(dispositivo)
+        elif tipo_dispositivo == "Consola":
+            self.mostrar_campos_consola(dispositivo)
+        elif tipo_dispositivo == "Celular":
+            self.mostrar_campos_celular(dispositivo)
+        elif tipo_dispositivo == "Tablet":
+            self.mostrar_campos_tablet(dispositivo)
+        else:
+            self.mostrar_campos_personalizado()
+
+    def cargar_datos_dispositivo(self, dispositivo):
+            # Usamos el diccionario de datos del dispositivo para cargar los campos
+            datos_dispositivo = {
+                "nombre": dispositivo["nombre"],
+                "telefono": dispositivo["telefono"],
+                "modelo": dispositivo["modelo"],
+                "placa": dispositivo["placa"],
+                "pantalla": dispositivo["pantalla"],
+                "correo": dispositivo["correo"],
+                "sistema_operativo": dispositivo["sistema_operativo"],
+                "ram": dispositivo["ram"],
+                "procesador": dispositivo["procesador"],
+                "memoria": dispositivo["memoria"],
+                "fuente": dispositivo["fuente"],
+                "tarjeta_grafica": dispositivo["tarjeta_grafica"],
+                "garantia": QDate.fromString(dispositivo["garantia"], "dd-MM-yyyy"),  # Convertir a QDate
+                "fecha_de_ingreso": QDate.fromString(dispositivo["fecha_ingreso"], "dd-MM-yyyy"),  # Convertir a QDate
+                "estado": dispositivo["estado"],
+                "notas": dispositivo["notas"]
+            }
+
+            # Recorremos el diccionario de datos del dispositivo y asignamos los valores a los campos
+            for clave, valor in datos_dispositivo.items():
+                widget = self.campos.get(clave)  # Buscamos el campo correspondiente en self.campos
+
+                if isinstance(widget, QLineEdit):  # Para campos de texto
+                    widget.setText(str(valor))
+
+                elif isinstance(widget, QTextEdit):  # Para el campo de notas
+                    widget.setPlainText(str(valor))
+
+                elif isinstance(widget, QComboBox):  # Para ComboBox (estado)
+                    index = widget.findText(str(valor))
+                    if index != -1:
+                        widget.setCurrentIndex(index)  
+                elif isinstance(widget, QDateEdit) and isinstance(valor, QDate):  # Para fechas
+                    widget.setDate(valor)
+
+#MÉTODOS DE: VOLVER, EDITAR, AGREGAR, ELIMINAR 
     def volver(self):
         from views.data_base_client import BaseDateWindow
         self.base = BaseDateWindow()
         self.base.show()
         self.close()
+
+    def editar(self):
+        from src.controllers.client_controller import ClientController
+        from src.views.alertas import mostrar_confirmacion
+
+        valor = mostrar_confirmacion(
+            "Confirmar edición",
+            "¿Estás seguro de que querés guardar los cambios de este cliente y su dispositivo?",
+            400, 400
+        )
+
+        if not valor:
+            return
+
+        # Obtener fecha de ingreso
+        fecha_widget = self.campos.get("fecha_de_ingreso")
+        if isinstance(fecha_widget, QDateEdit):
+            fecha_ingreso = fecha_widget.date().toString("yyyy-MM-dd")
+        else:
+            print("⚠️ Error: El campo 'fecha_de_ingreso' no es un QDateEdit.")
+            return
+
+        id_cliente = self.id_cliente  # 👈 Asegurate de que esté seteado antes de llamar a editar()
+
+        # Datos del cliente
+        datos_cliente = {
+            "id_cliente": id_cliente,
+            "nombre": self.campos["nombre"].text().strip(),
+            "telefono": self.campos["telefono"].text().strip(),
+            "correo": self.campos["correo"].text().strip(),
+            "fecha_ingreso": fecha_ingreso,
+        }
+
+        # Validación básica
+        if not datos_cliente["nombre"] or not datos_cliente["telefono"] or not datos_cliente["correo"]:
+            print("⚠️ Error: Nombre, teléfono y correo son obligatorios")
+            return
+
+        # === Actualizar datos del cliente ===
+        controller = ClientController()
+        try:
+            controller.editar_cliente(datos_cliente)
+        except Exception as e:
+            print("❌ Error al editar cliente:", e)
+            import traceback
+            traceback.print_exc()
+            return
+
+        # === Editar datos del dispositivo ===
+        dispositivos_controladores = {
+            "Computadora": ("src.controllers.dispositivo_controller.computadora_controller", "ComputadoraController", "editar_computadora"),
+            "Notebook": ("src.controllers.dispositivo_controller.notebook_controller", "NotebookController", "editar_notebook"),
+            "Consola": ("src.controllers.dispositivo_controller.consola_controller", "ConsolaController", "editar_consola"),
+            "Celular": ("src.controllers.dispositivo_controller.celular_controller", "CelularController", "editar_celular"),
+            "Tablet": ("src.controllers.dispositivo_controller.tablet_controller", "TabletController", "editar_tablet"),
+            "Personalizado": ("src.controllers.dispositivo_controller.personalizado_controller", "PersonalizadoController", "editar_personalizado"),
+        }
+
+        dispositivo = self.campo_dispositivo.currentText()
+        modulo_path, clase_nombre, metodo_editar = dispositivos_controladores.get(dispositivo, (None, None, None))
+
+        if not modulo_path:
+            print(f"⚠️ No se encontró un controlador para el dispositivo: {dispositivo}")
+            return
+
+        # Importar dinámicamente el controlador del dispositivo
+        try:
+            modulo = __import__(modulo_path, fromlist=[clase_nombre])
+            clase_controlador = getattr(modulo, clase_nombre)
+            controlador = clase_controlador()
+        except Exception as e:
+            print(f"❌ Error al instanciar el controlador '{clase_nombre}': {e}")
+            import traceback
+            traceback.print_exc()
+            return
+
+        # Extraer campos del formulario
+        campos_dispositivo = {}
+        for etiqueta, widget in self.campos.items():
+            clave = etiqueta.lower().replace(" ", "_")
+
+            if hasattr(widget, "text"):
+                campos_dispositivo[clave] = widget.text().strip()
+            elif isinstance(widget, QDateEdit):
+                campos_dispositivo[clave] = widget.date().toString("yyyy-MM-dd")
+            elif isinstance(widget, QComboBox):
+                campos_dispositivo[clave] = widget.currentText()
+
+        # Agregar notas si existen
+        if hasattr(self, "nota"):
+            campos_dispositivo["notas"] = self.nota.toPlainText().strip()
+
+        # Relacionar con el cliente
+        campos_dispositivo["id_cliente"] = id_cliente
+
+        # Llamar método de edición del controlador
+        try:
+            metodo = getattr(controlador, metodo_editar)
+            metodo(**campos_dispositivo)
+        except Exception as e:
+            print(f"❌ Error al editar datos del dispositivo ({dispositivo}):", e)
+            import traceback
+            traceback.print_exc()
+
 
     def agregar(self):
         from src.controllers.client_controller import ClientController
@@ -362,6 +533,6 @@ class UpdateWindow(QWidget):
         else:
             print(f"⚠️ No se encontró un controlador para el dispositivo: {dispositivo}")# else: print("Operación cancelada por el usuario.")
 
-def closeEvent(self, event):
-        self.closed.emit()  # Emitir señal al cerrar
-        super().closeEvent(event)
+    def closeEvent(self, event):
+            self.closed.emit()  # Emitir señal al cerrar
+            super().closeEvent(event)
