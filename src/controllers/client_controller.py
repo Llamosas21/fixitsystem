@@ -27,6 +27,15 @@ class ClientController:
             print(f"Error al obtener el cliente: {e}")
             return []
 
+    def editar_cliente(self, datos):
+        self.db.editar_cliente(
+            datos["id_cliente"],
+            datos["nombre"],
+            datos["telefono"],
+            datos["correo"],
+            datos["fecha_ingreso"]
+        )
+
     def cerrar_conexion(self):
         """Cierra la conexión a la base de datos."""
         self.db.cerrar_conexion()
