@@ -84,6 +84,7 @@ class UpdateWindow(QWidget):
         # Acciones
         self.boton_editar.clicked.connect(self.editar)
         self.boton_agregar.clicked.connect(self.agregar)
+        self.boton_eliminar.clicked.connect(self.eliminar)
 
         # Agregar al frame layout
         frame_layout.addWidget(self.label_titulo, alignment=Qt.AlignHCenter | Qt.AlignTop)
@@ -142,7 +143,7 @@ class UpdateWindow(QWidget):
             "Memoria", "Placa", "telefono", "Modelo", "Fuente", 
             "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado"]
         self._agregar_campos(etiquetas)
-        #self.cargar_datos_genericos()  # Cargar datos genericos
+        self.cargar_datos_genericos()  # Cargar datos genericos
 
     def mostrar_campos_notebook(self):
         etiquetas = [
@@ -331,13 +332,28 @@ class UpdateWindow(QWidget):
 #MÉTODOS DE: VOLVER, EDITAR, AGREGAR, ELIMINAR 
     def volver(self):
         from views.data_base_client import BaseDateWindow
+
+        try:
+            # Si existe una conexión abierta en esta ventana, cerrala
+            if hasattr(self, 'connection') and self.connection:
+                self.connection.close()
+                print("✅ Conexión a base de datos cerrada desde la vista actual.")
+        except Exception as e:
+            print(f"⚠️ Error al cerrar la conexión: {e}")
+
         self.base = BaseDateWindow()
         self.base.show()
         self.close()
 
+
     def editar(self):
         from src.controllers.client_controller import ClientController
-        from src.views.alertas import mostrar_confirmacion
+        from src.views.alertas import mostrar_confirmacion,mostrar_alerta
+
+        if not hasattr(self, 'id_cliente') or not self.id_cliente:
+            mostrar_alerta("Error", "No se ha seleccionado un cliente.", 300, 200)
+            self.volver()
+            return
 
         valor = mostrar_confirmacion(
             "Confirmar edición",
@@ -356,7 +372,7 @@ class UpdateWindow(QWidget):
             print("⚠️ Error: El campo 'fecha_de_ingreso' no es un QDateEdit.")
             return
 
-        id_cliente = self.id_cliente  # 👈 Asegurate de que esté seteado antes de llamar a editar()
+        id_cliente = self.id_cliente  
 
         # Datos del cliente
         datos_cliente = {
@@ -437,7 +453,6 @@ class UpdateWindow(QWidget):
             print(f"❌ Error al editar datos del dispositivo ({dispositivo}):", e)
             import traceback
             traceback.print_exc()
-
 
     def agregar(self):
         from src.controllers.client_controller import ClientController
@@ -532,6 +547,70 @@ class UpdateWindow(QWidget):
 
         else:
             print(f"⚠️ No se encontró un controlador para el dispositivo: {dispositivo}")# else: print("Operación cancelada por el usuario.")
+
+    def eliminar(self):
+        from src.controllers.client_controller import ClientController
+        from src.views.alertas import mostrar_confirmacion, mostrar_alerta
+
+        # Validar que haya un cliente seleccionado
+        if not hasattr(self, 'id_cliente') or not self.id_cliente:
+            mostrar_alerta("Error", "No se ha seleccionado un cliente para eliminar.", 300, 200)
+            return
+
+        # Confirmación del usuario
+        valor = mostrar_confirmacion("Confirmar eliminación de cliente","¿Estás seguro de que quieres eliminar este cliente de la base de datos?",400,400)
+
+        if valor is not True:
+            return
+
+        # === Eliminar cliente ===
+        controller = ClientController()
+        resultado = controller.eliminar_cliente(self.id_cliente)
+
+        if not resultado:
+            print("❌ Error al eliminar cliente")
+            return
+
+        # === Eliminar dispositivo correspondiente ===
+        dispositivos_controladores = {
+            "Computadora": ("src.controllers.dispositivo_controller.computadora_controller", "ComputadoraController", "eliminar_computadora"),
+            "Notebook": ("src.controllers.dispositivo_controller.notebook_controller", "NotebookController", "eliminar_notebook"),
+            "Consola": ("src.controllers.dispositivo_controller.consola_controller", "ConsolaController", "eliminar_consola"),
+            "Celular": ("src.controllers.dispositivo_controller.celular_controller", "CelularController", "eliminar_celular"),
+            "Tablet": ("src.controllers.dispositivo_controller.tablet_controller", "TabletController", "eliminar_tablet"),
+            "Personalizado": ("src.controllers.dispositivo_controller.personalizado_controller", "PersonalizadoController", "eliminar_personalizado"),
+        }
+
+        # Extraer tipo de dispositivo desde el comboBox o su valor actual
+        dispositivo = None
+        if hasattr(self, "campo_dispositivo"):
+            dispositivo = self.campo_dispositivo.currentText()
+        elif "dispositivo" in self.campos:
+            dispositivo = self.campos["dispositivo"].currentText()
+
+        if not dispositivo:
+            print("⚠️ No se pudo determinar el tipo de dispositivo.")
+            return
+
+        modulo_path, clase_nombre, metodo_eliminar = dispositivos_controladores.get(dispositivo, (None, None, None))
+
+        if modulo_path and clase_nombre and metodo_eliminar:
+            try:
+                modulo = __import__(modulo_path, fromlist=[clase_nombre])
+                clase_controlador = getattr(modulo, clase_nombre)
+                controlador = clase_controlador()
+                getattr(controlador, metodo_eliminar)(self.id_cliente)
+            except Exception as e:
+                print(f"❌ Error al eliminar el dispositivo '{dispositivo}': {e}")
+                import traceback
+                traceback.print_exc()
+                return
+        else:
+            print(f"⚠️ No se encontró un controlador válido para el tipo de dispositivo: {dispositivo}")
+
+        # Mensaje de éxito
+        mostrar_alerta("Eliminación exitosa", "El cliente y su dispositivo han sido eliminados correctamente.", 400, 300)
+        self.volver()
 
     def closeEvent(self, event):
             self.closed.emit()  # Emitir señal al cerrar
