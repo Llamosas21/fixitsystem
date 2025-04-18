@@ -69,3 +69,12 @@ class ClienteModel:
             print(f"❌ Error al obtener clientes: {e}")
             return []
 
+    def editar_cliente(self, id_cliente, nombre, telefono, correo, fecha_ingreso):
+        self.cursor.execute("""
+            UPDATE clientes
+            SET nombre = ?, telefono = ?, correo = ?, fecha_ingreso = ?
+            WHERE id_cliente = ?
+        """, (nombre, telefono, correo, fecha_ingreso, id_cliente))
+        self.connection.commit()
+        return True
+
