@@ -18,5 +18,13 @@ class ComputadoraController:
     def editar_computadora(self, **kwargs):
         self.modelo.editar_computadora(**kwargs)
 
+    def eliminar_computadora(self, id_cliente):
+        try:
+            self.modelo.eliminar_por_id_cliente(id_cliente)
+            return True
+        except Exception as e:
+            print(f"❌ Error al eliminar computadora: {e}")
+            return False
+
     def cerrar_conexion(self):
         self.modelo.cerrar_conexion()
