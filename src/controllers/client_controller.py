@@ -33,8 +33,15 @@ class ClientController:
             datos["nombre"],
             datos["telefono"],
             datos["correo"],
-            datos["fecha_ingreso"]
-        )
+            datos["fecha_ingreso"])
+
+    def eliminar_cliente(self, id_cliente):
+        try:
+            resultado = self.db.eliminar_cliente(id_cliente)
+            return resultado
+        except Exception as e:
+            print(f"❌ Error al eliminar cliente: {e}")
+            return False
 
     def cerrar_conexion(self):
         """Cierra la conexión a la base de datos."""
