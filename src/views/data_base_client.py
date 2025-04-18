@@ -243,7 +243,7 @@ class BaseDateWindow(QWidget):
             from src.views.add_date import UpdateWindow
             self.ventana_update = UpdateWindow()
             self.ventana_update.show()
-            print("📦 Datos que se pasan a cargar_datos_editar:", self.datos_cliente_seleccionado, dispositivos)
+            #print("📦 Datos que se pasan a cargar_datos_editar:", self.datos_cliente_seleccionado, dispositivos)
             self.ventana_update.cargar_datos_editar(self.datos_cliente_seleccionado, dispositivos)
             self.close()
         else:
