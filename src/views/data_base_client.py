@@ -37,6 +37,7 @@ class BaseDateWindow(QWidget):
         self.label_titulo.setStyleSheet("color: #102540; font-size: 40px; padding-top: 20px;")
         self.label_titulo.setAlignment(Qt.AlignHCenter)
         
+        
         # FRAME CONTENEDOR
         self.frame_contenedor = QFrame(self.frame)
         self.frame_contenedor.setFixedSize(1000, 500)
@@ -58,8 +59,7 @@ class BaseDateWindow(QWidget):
                 padding-left: 10px;
                 margin-left: 30px;
                 margin-right: 30px;
-            }
-            """)
+            }""")
         frame_contenedor_layout.addWidget(self.input_busqueda)
         
         # BASE DE DATOS
@@ -109,10 +109,9 @@ class BaseDateWindow(QWidget):
             QPushButton:hover {
                 background-color: #2a4a75;
             }
-            """)
+            """)     
         
-        
-        # Solo un botón, renombrado a "Modificar"
+        #BOTÓN Modificar
         self.boton_Modificar = QPushButton("Modificar")
         self.boton_Modificar.setStyleSheet(boton_estilo)
         self.boton_Modificar.setFixedSize(120, 35)
@@ -195,7 +194,7 @@ class BaseDateWindow(QWidget):
             dispositivo = self.table_widget.item(row, column).text().lower()  # Convertir a minúsculas
 
             # Diccionario de dispositivos y vistas asociadas
-            vistas_dispositivos = {
+            vistas_dispositivos = { 
                 "computadora": ("computadora_view", "BaseComputadoraWindow"),
                 "notebook": ("notebook_view", "BaseNotebookWindow"),
                 "consola": ("consola_view", "BaseConsolaWindow"),
@@ -212,6 +211,43 @@ class BaseDateWindow(QWidget):
                 self.abrir_vista_dinamica(nombre_modulo, nombre_clase)
             else:
                 print(f"⚠️ Vista no definida para el dispositivo: {dispositivo}")
+           
+        elif self.table_widget.horizontalHeaderItem(column).text() == "ID Cliente":
+            headers = [self.table_widget.horizontalHeaderItem(i).text() for i in range(self.table_widget.columnCount())]
+            fila_datos = {headers[i]: self.table_widget.item(row, i).text() for i in range(self.table_widget.columnCount())}      
+            self.datos_cliente_seleccionado = fila_datos
+            self.buscar_datos_dispositivo()
+
+    def buscar_datos_dispositivo(self):
+        #print("📦 Datos del cliente seleccionado:", self.datos_cliente_seleccionado)
+        cliente_id = self.datos_cliente_seleccionado.get("ID Cliente")
+        tipo_dispositivo = self.datos_cliente_seleccionado.get("Dispositivo")
+
+        if not cliente_id or not tipo_dispositivo:
+            print("❌ Falta el ID Cliente o el tipo de dispositivo.")
+            return
+
+        controlador = None
+
+        if tipo_dispositivo == "Computadora":
+            from src.controllers.dispositivo_controller.computadora_controller import ComputadoraController
+            controlador = ComputadoraController()
+
+        # ... otros tipos de dispositivo
+
+        if controlador:
+            dispositivos = controlador.obtener_por_cliente_id(cliente_id)
+            self.datos_dispositivo = dispositivos 
+            # Guardamos los datos obtenidos
+            # Enviar los datos a add_date.py.py
+            from src.views.add_date import UpdateWindow
+            self.ventana_update = UpdateWindow()
+            self.ventana_update.show()
+            print("📦 Datos que se pasan a cargar_datos_editar:", self.datos_cliente_seleccionado, dispositivos)
+            self.ventana_update.cargar_datos_editar(self.datos_cliente_seleccionado, dispositivos)
+            self.close()
+        else:
+            print("❌ Tipo de dispositivo no reconocido.")
 
     def abrir_vista_dinamica(self, nombre_modulo, nombre_clase):
         try:
@@ -222,8 +258,7 @@ class BaseDateWindow(QWidget):
             self.close()
         except Exception as e:
             print(f"❌ Error al abrir la vista {nombre_modulo}: {e}")
-
-            
+         
     def closeEvent(self, event):
         self.controller.cerrar_conexion()
         super().closeEvent(event)
