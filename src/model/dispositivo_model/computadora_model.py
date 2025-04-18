@@ -99,11 +99,10 @@ class ComputadoraModel:
                 correo = ?, sistema_operativo = ?, ram = ?, estado = ?, notas = ?
             WHERE id_cliente = ?
         """, datos)
-
         self.connect.commit()
 
-    def eliminar_por_id(self, id_):
-        self.cursor.execute("DELETE FROM computadoras WHERE id = ?", (id_,))
+    def eliminar_por_id_cliente(self, id_cliente):
+        self.cursor.execute("DELETE FROM computadoras WHERE id_cliente = ?", (id_cliente,))
         self.connect.commit()
 
     def cerrar_conexion(self):
