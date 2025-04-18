@@ -8,7 +8,6 @@ class ComputadoraModel:
         self.cursor = self.connect.cursor()
         self.crear_tabla()
 
-
     def crear_tabla(self):
         self.cursor.execute("""
            CREATE TABLE IF NOT EXISTS computadoras (
@@ -62,16 +61,46 @@ class ComputadoraModel:
         """, datos)
         self.connect.commit()
 
-
     def obtener_computadoras(self):
         self.cursor.execute("SELECT * FROM computadoras")
         rows = self.cursor.fetchall()
         return [dict(row) for row in rows]
 
+    def obtener_por_cliente_id(self, cliente_id):
+        self.cursor.execute("SELECT * FROM computadoras WHERE id_cliente = ?", (cliente_id,))
+        rows = self.cursor.fetchall()
+        return [dict(row) for row in rows]  # Por si un cliente tiene más de una computadora
 
-    def obtener_por_id_cliente(self, id_cliente):
-        self.cursor.execute("SELECT * FROM computadoras WHERE id_cliente = ?", (id_cliente,))
-        return self.cursor.fetchall()
+    def editar_computadora(self, **kwargs):
+        datos = (
+            kwargs['fecha_de_ingreso'],
+            kwargs['procesador'],
+            kwargs['tarjeta_grafica'],
+            kwargs['nombre'],
+            kwargs['garantia'],
+            kwargs['memoria'],
+            kwargs['placa'],
+            kwargs['telefono'],
+            kwargs['modelo'],
+            kwargs['fuente'],
+            kwargs['pantalla'],
+            kwargs['correo'],
+            kwargs['sistema_operativo'],
+            kwargs['ram'],
+            kwargs['estado'],
+            kwargs.get('notas', ''),  # opcional
+            kwargs['id_cliente']  # condición del WHERE
+        )
+
+        self.cursor.execute("""
+            UPDATE computadoras SET
+                fecha_ingreso = ?, procesador = ?, tarjeta_grafica = ?, nombre = ?, garantia = ?,
+                memoria = ?, placa = ?, telefono = ?, modelo = ?, fuente = ?, pantalla = ?,
+                correo = ?, sistema_operativo = ?, ram = ?, estado = ?, notas = ?
+            WHERE id_cliente = ?
+        """, datos)
+
+        self.connect.commit()
 
     def eliminar_por_id(self, id_):
         self.cursor.execute("DELETE FROM computadoras WHERE id = ?", (id_,))
