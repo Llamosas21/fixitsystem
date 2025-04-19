@@ -91,11 +91,11 @@ class BaseComputadoraWindow(QWidget):
 
         # TABLA COMPUTADORA 
         self.table_widget = QTableWidget(self.frame_fondo_db)
-        self.table_widget.setColumnCount(18)
+        self.table_widget.setColumnCount(19)
         self.table_widget.setHorizontalHeaderLabels([
             "ID", "ID Cliente", "Fecha Ingreso", "Procesador", "Gráfica", "Nombre",
             "Garantía", "Memoria", "Placa", "Teléfono", "Modelo", "Fuente", "Pantalla",
-            "Correo", "SO", "RAM", "Estado", "Notas"
+            "Correo", "SO", "RAM", "Estado", "Precio", "Notas"
         ])
 
         # Estilo visual
@@ -148,9 +148,9 @@ class BaseComputadoraWindow(QWidget):
         for col in range(self.table_widget.columnCount()):
             if col in [1]:  # ID Cliente 
                 self.table_widget.setColumnWidth(col, 90)
-            elif col in [0, 17]:  # ID y Notas 
+            elif col in [0, 19]:  # ID y Notas 
                 self.table_widget.setColumnWidth(col, 50)
-            elif col in [3, 4, 6, 8, 13, 14]:  # Campos de texto más largo
+            elif col in [3, 4, 6, 8, 13, 14, 18]:  # Campos de texto más largo
                 header.setSectionResizeMode(col, QHeaderView.ResizeToContents)
             else:
                 header.setSectionResizeMode(col, QHeaderView.Interactive)
@@ -209,7 +209,7 @@ class BaseComputadoraWindow(QWidget):
         campos_a_mostrar = [
             "id", "id_cliente", "fecha_ingreso", "procesador", "tarjeta_grafica", "nombre",
             "garantia", "memoria", "placa", "telefono", "modelo", "fuente", "pantalla",
-            "correo", "sistema_operativo", "ram", "estado", "notas"
+            "correo", "sistema_operativo", "ram", "estado", "precio","notas"
         ]
 
         self.lista_computadoras_original = datos
