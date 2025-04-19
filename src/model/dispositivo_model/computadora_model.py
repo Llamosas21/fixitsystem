@@ -28,6 +28,7 @@ class ComputadoraModel:
             sistema_operativo TEXT,
             ram TEXT,
             estado TEXT,
+            precio  TEXT,     
             notas TEXT,
             FOREIGN KEY (id_cliente) REFERENCES clientes(id))""")
         self.connect.commit()
@@ -50,14 +51,15 @@ class ComputadoraModel:
             kwargs['sistema_operativo'],
             kwargs['ram'],
             kwargs['estado'],
+            kwargs ['precio'],
             kwargs.get('notas', '') 
         )
         self.cursor.execute("""
             INSERT INTO computadoras (
                 id_cliente, fecha_ingreso, procesador, tarjeta_grafica,
                 nombre, garantia, memoria, placa, telefono, modelo, fuente,
-                pantalla, correo, sistema_operativo, ram, estado, notas
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                pantalla, correo, sistema_operativo, ram, estado, precio, notas
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, datos)
         self.connect.commit()
 
@@ -88,6 +90,7 @@ class ComputadoraModel:
             kwargs['sistema_operativo'],
             kwargs['ram'],
             kwargs['estado'],
+            kwargs ['precio'],
             kwargs.get('notas', ''),  # opcional
             kwargs['id_cliente']  # condición del WHERE
         )
@@ -96,7 +99,7 @@ class ComputadoraModel:
             UPDATE computadoras SET
                 fecha_ingreso = ?, procesador = ?, tarjeta_grafica = ?, nombre = ?, garantia = ?,
                 memoria = ?, placa = ?, telefono = ?, modelo = ?, fuente = ?, pantalla = ?,
-                correo = ?, sistema_operativo = ?, ram = ?, estado = ?, notas = ?
+                correo = ?, sistema_operativo = ?, ram = ?, estado = ?, precio = ?, notas = ?
             WHERE id_cliente = ?
         """, datos)
         self.connect.commit()
