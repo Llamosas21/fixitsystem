@@ -261,14 +261,6 @@ class BaseComputadoraWindow(QWidget):
         self.ventana_formulario.show()
         self.close()
 
-
-
-    def volver_al_inicio(self):
-        from views.start import StartWindow
-        self.login = StartWindow()
-        self.login.show()
-        self.close()
-
     def abrir_actualizar_base(self):
         from views.add_date import UpdateWindow
         self.actualizar = UpdateWindow()
