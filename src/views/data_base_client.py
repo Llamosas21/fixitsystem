@@ -6,8 +6,7 @@ from PySide6.QtWidgets import (
 from src.controllers.client_controller import ClientController
 from PySide6.QtGui import  QIcon
 from PySide6.QtCore import Qt, QSize
-from views.utils.resource_finder import cargar_fuente_personalizada
-
+from utils.resource_finder import cargar_fuente_predeterminada
 
 class BaseDateWindow(QWidget):
     def __init__(self):
@@ -15,7 +14,7 @@ class BaseDateWindow(QWidget):
         self.setWindowTitle("FixItSystem - Base de Datos")
         self.controller = ClientController()
         self._configurar_ventana()
-        self.custom_font = cargar_fuente_personalizada()
+        self.custom_font = cargar_fuente_predeterminada()
         self._crear_interfaz()
         self._cargar_datos()
         
@@ -177,7 +176,7 @@ class BaseDateWindow(QWidget):
                 self.table_widget.setItem(row_index, col_index, item)
 
     def volver_al_inicio(self):
-        from views.alertas import mostrar_alerta
+        from utils.alertas import mostrar_alerta
         mostrar_alerta("En desarrollo", "Esta función todavía no está disponible. Estamos trabajando en ello.", 400, 300)
         """ De momento no se deshabilita
         from views.start import StartWindow
@@ -186,7 +185,6 @@ class BaseDateWindow(QWidget):
         self.close()
         """
         
-
     def abrir_actualizar_base(self):
         from views.add_date import UpdateWindow
         self.actualizar = UpdateWindow()

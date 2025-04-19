@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QSize
 from src.controllers.dispositivo_controller.computadora_controller import ComputadoraController
-from views.utils.resource_finder import cargar_fuente_personalizada
+from utils.resource_finder import cargar_fuente_predeterminada
 
 
 class BaseComputadoraWindow(QWidget):
@@ -15,7 +15,7 @@ class BaseComputadoraWindow(QWidget):
         self.setWindowTitle("FixItSystem - Base de Datos Computadora")
         self.controller = ComputadoraController()
         self._configurar_ventana()
-        self.custom_font = cargar_fuente_personalizada()
+        self.custom_font = cargar_fuente_predeterminada()
         self._crear_interfaz()
         self._cargar_datos()
         
@@ -243,7 +243,7 @@ class BaseComputadoraWindow(QWidget):
             self.table_widget.setItem(row_position, columna, item)
 
     def handle_cell_click(self, fila, columna):
-        from views.utils.info_views import mostrar_popup_notas
+        from utils.info_views import mostrar_popup_notas
         """Al hacer clic en una celda, invoca 'mostrar_popup_notas' con la instancia,
         la tabla, la lista de computadoras y las coordenadas para mostrar las notas
         si la columna es "Notas"..."""

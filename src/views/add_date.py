@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QDate, Signal, QSize
-from views.utils.resource_finder import cargar_fuente_personalizada
+from utils.resource_finder import cargar_fuente_predeterminada
 
 class UpdateWindow(QWidget):
     closed = Signal()
@@ -17,7 +17,7 @@ class UpdateWindow(QWidget):
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMaximizeButtonHint)
         self.showMaximized()
         self.setStyleSheet("QWidget {background-color: #0d0d0d;}")
-        self.custom_font = cargar_fuente_personalizada()
+        self.custom_font = cargar_fuente_predeterminada()
         self._crear_interfaz()
        
     def _crear_interfaz(self):
@@ -360,7 +360,7 @@ class UpdateWindow(QWidget):
 
     def editar(self):
         from src.controllers.client_controller import ClientController
-        from src.views.alertas import mostrar_confirmacion,mostrar_alerta
+        from utils.alertas import mostrar_confirmacion,mostrar_alerta
 
         if not hasattr(self, 'id_cliente') or not self.id_cliente:
             mostrar_alerta("Error", "No se ha seleccionado un cliente.", 300, 200)
@@ -468,7 +468,7 @@ class UpdateWindow(QWidget):
 
     def agregar(self):
         from src.controllers.client_controller import ClientController
-        from src.views.alertas import mostrar_confirmacion
+        from utils.alertas import mostrar_confirmacion
         import uuid
 
         valor = mostrar_confirmacion("Confirmar alta de cliente","¿Estás seguro de que querés agregar este nuevo cliente a la base de datos?",400, 400)
@@ -562,7 +562,7 @@ class UpdateWindow(QWidget):
 
     def eliminar(self):
         from src.controllers.client_controller import ClientController
-        from src.views.alertas import mostrar_confirmacion, mostrar_alerta
+        from utils.alertas import mostrar_confirmacion, mostrar_alerta
 
         # Validar que haya un cliente seleccionado
         if not hasattr(self, 'id_cliente') or not self.id_cliente:
