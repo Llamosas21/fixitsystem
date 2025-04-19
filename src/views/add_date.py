@@ -148,7 +148,7 @@ class UpdateWindow(QWidget):
         etiquetas = [
             "fecha_de_ingreso", "Procesador", "tarjeta_grafica", "Nombre", "garantia",
             "Memoria", "Placa", "telefono", "Modelo", "Fuente", 
-            "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado"]
+            "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado", "precio"]
         self._agregar_campos(etiquetas)
         self.cargar_datos_genericos()  # Cargar datos genericos
 
@@ -256,6 +256,7 @@ class UpdateWindow(QWidget):
             "tarjeta_grafica": "NVIDIA GTX 1650",
             "garantia": QDate.currentDate(),
             "fecha_de_ingreso": QDate.currentDate(),
+            "precio": "5.000.000",
             "estado": "New"}
 
         for clave, valor in genericos.items():
@@ -273,7 +274,6 @@ class UpdateWindow(QWidget):
         #print("Se Agregan los datos genericos")
 
 #MÉTODOS PARA CARGAR LOS DATOS DESDE celda_clickeada (data_base_client.py)
-
     def cargar_datos_editar(self, cliente_seleccionado, dispositivos):
         self.id_cliente = cliente_seleccionado.get("ID Cliente")
         dispositivo = dispositivos[0]
@@ -299,42 +299,48 @@ class UpdateWindow(QWidget):
             self.mostrar_campos_personalizado()
 
     def cargar_datos_dispositivo(self, dispositivo):
-            # Usamos el diccionario de datos del dispositivo para cargar los campos
-            datos_dispositivo = {
-                "nombre": dispositivo["nombre"],
-                "telefono": dispositivo["telefono"],
-                "modelo": dispositivo["modelo"],
-                "placa": dispositivo["placa"],
-                "pantalla": dispositivo["pantalla"],
-                "correo": dispositivo["correo"],
-                "sistema_operativo": dispositivo["sistema_operativo"],
-                "ram": dispositivo["ram"],
-                "procesador": dispositivo["procesador"],
-                "memoria": dispositivo["memoria"],
-                "fuente": dispositivo["fuente"],
-                "tarjeta_grafica": dispositivo["tarjeta_grafica"],
-                "garantia": QDate.fromString(dispositivo["garantia"], "dd-MM-yyyy"),  # Convertir a QDate
-                "fecha_de_ingreso": QDate.fromString(dispositivo["fecha_ingreso"], "dd-MM-yyyy"),  # Convertir a QDate
-                "estado": dispositivo["estado"],
-                "notas": dispositivo["notas"]
-            }
+        # Convertimos y preparamos los datos para ser cargados en los widgets
+        datos_dispositivo = {
+            "nombre": dispositivo["nombre"],
+            "telefono": dispositivo["telefono"],
+            "modelo": dispositivo["modelo"],
+            "placa": dispositivo["placa"],
+            "pantalla": dispositivo["pantalla"],
+            "correo": dispositivo["correo"],
+            "sistema_operativo": dispositivo["sistema_operativo"],
+            "ram": dispositivo["ram"],
+            "procesador": dispositivo["procesador"],
+            "memoria": dispositivo["memoria"],
+            "fuente": dispositivo["fuente"],
+            "tarjeta_grafica": dispositivo["tarjeta_grafica"],
+            "garantia": QDate.fromString(dispositivo["garantia"], "dd-MM-yyyy"),
+            "fecha_de_ingreso": QDate.fromString(dispositivo["fecha_ingreso"], "dd-MM-yyyy"),
+            "estado": dispositivo["estado"],
+            "precio": dispositivo["precio"], 
+            "notas": dispositivo["notas"]
+        }
 
-            # Recorremos el diccionario de datos del dispositivo y asignamos los valores a los campos
-            for clave, valor in datos_dispositivo.items():
-                widget = self.campos.get(clave)  # Buscamos el campo correspondiente en self.campos
+        # Asignamos los valores a los widgets
+        for clave, valor in datos_dispositivo.items():
+            widget = self.campos.get(clave)
 
-                if isinstance(widget, QLineEdit):  # Para campos de texto
-                    widget.setText(str(valor))
+            if widget is None:
+                print(f"⚠️ Campo no encontrado en self.campos: '{clave}'")  # Verificación extra
+                continue
 
-                elif isinstance(widget, QTextEdit):  # Para el campo de notas
-                    widget.setPlainText(str(valor))
+            if isinstance(widget, QLineEdit):
+                widget.setText(str(valor))
 
-                elif isinstance(widget, QComboBox):  # Para ComboBox (estado)
-                    index = widget.findText(str(valor))
-                    if index != -1:
-                        widget.setCurrentIndex(index)  
-                elif isinstance(widget, QDateEdit) and isinstance(valor, QDate):  # Para fechas
-                    widget.setDate(valor)
+            elif isinstance(widget, QTextEdit):
+                widget.setPlainText(str(valor))
+
+            elif isinstance(widget, QComboBox):
+                index = widget.findText(str(valor))
+                if index != -1:
+                    widget.setCurrentIndex(index)
+
+            elif isinstance(widget, QDateEdit) and isinstance(valor, QDate):
+                widget.setDate(valor)
 
 #MÉTODOS DE: VOLVER, EDITAR, AGREGAR, ELIMINAR 
     def volver(self):
@@ -515,30 +521,30 @@ class UpdateWindow(QWidget):
             dispositivo = datos["dispositivo"]
             modulo_path, clase_nombre, metodo_agregar = dispositivos_controladores.get(dispositivo, (None, None, None))
 
-        if modulo_path:
-            modulo = __import__(modulo_path, fromlist=[clase_nombre])
-            clase_controlador = getattr(modulo, clase_nombre)
-            try:
-                controlador = clase_controlador()
-            except Exception as e:
-                print(f"❌ Error al instanciar el controlador '{clase_nombre}': {e}")
-                import traceback
-                traceback.print_exc()
-                return
+            if modulo_path:
+                modulo = __import__(modulo_path, fromlist=[clase_nombre])
+                clase_controlador = getattr(modulo, clase_nombre)
+                try:
+                    controlador = clase_controlador()
+                except Exception as e:
+                    print(f"❌ Error al instanciar el controlador '{clase_nombre}': {e}")
+                    import traceback
+                    traceback.print_exc()
+                    return
 
-            # Extraer campos del formulario según el dispositivo
-            campos_dispositivo = {}
-            for etiqueta, widget in self.campos.items():
-                clave = etiqueta.lower().replace(" ", "_")
+                # Extraer campos del formulario según el dispositivo
+                campos_dispositivo = {}
+                for etiqueta, widget in self.campos.items():
+                    clave = etiqueta.lower().replace(" ", "_")
 
-                if hasattr(widget, "text"):  # QLineEdit
-                    campos_dispositivo[clave] = widget.text().strip()
+                    if hasattr(widget, "text"):  # QLineEdit
+                        campos_dispositivo[clave] = widget.text().strip()
 
-                elif isinstance(widget, QDateEdit):
-                    campos_dispositivo[clave] = widget.date().toString("yyyy-MM-dd")
+                    elif isinstance(widget, QDateEdit):
+                        campos_dispositivo[clave] = widget.date().toString("yyyy-MM-dd")
 
-                elif isinstance(widget, QComboBox):
-                    campos_dispositivo[clave] = widget.currentText()
+                    elif isinstance(widget, QComboBox):
+                        campos_dispositivo[clave] = widget.currentText()
 
             # Agregar notas si el campo existe
             if hasattr(self, "nota"):
@@ -551,8 +557,8 @@ class UpdateWindow(QWidget):
             metodo = getattr(controlador, metodo_agregar)
             metodo(**campos_dispositivo)
 
-        else:
-            print(f"⚠️ No se encontró un controlador para el dispositivo: {dispositivo}")# else: print("Operación cancelada por el usuario.")
+        else: 
+            print("Operación cancelada por el usuario.")
 
     def eliminar(self):
         from src.controllers.client_controller import ClientController
