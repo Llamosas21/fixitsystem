@@ -1,7 +1,7 @@
 import os
 from PySide6.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, 
-    QFrame, QLineEdit, QTableWidget, QTableWidgetItem, QHeaderView
+    QFrame, QLineEdit, QTableWidget, QTableWidgetItem, QHeaderView, QAbstractItemView
 )
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QSize
@@ -133,7 +133,6 @@ class BaseComputadoraWindow(QWidget):
                 background: none;
             }""")
 
-
         # Agrega la tabla al layout (asegurate de tener frame_contenedor_layout creado)
         self.frame_contenedor.setLayout(frame_contenedor_layout)
 
@@ -163,10 +162,11 @@ class BaseComputadoraWindow(QWidget):
         # Desactivar ordenamiento
         self.table_widget.setSortingEnabled(False)
 
+        # Desactivar editar valores en la tabla  
+        self.table_widget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
         #Agregar acción a la columna notas:
         self.table_widget.cellClicked.connect(self.handle_cell_click)
-
-
     
         boton_estilo = (
             """
@@ -185,7 +185,7 @@ class BaseComputadoraWindow(QWidget):
         self.boton_Agregar = QPushButton("Agregar")
         self.boton_Agregar.setStyleSheet(boton_estilo)
         self.boton_Agregar.setFixedSize(120, 35)
-        #self.boton_Agregar.clicked.connect(self.abrir_formulario_computadora)
+        self.boton_Agregar.clicked.connect(self.abrir_formulario_computadora)
 
         botones_layout = QHBoxLayout()
         botones_layout.addWidget(self.boton_Agregar)
@@ -255,6 +255,14 @@ class BaseComputadoraWindow(QWidget):
         self.base.show()
         self.close()
         
+    def abrir_formulario_computadora(self):
+        from views.add_date import UpdateWindow
+        self.ventana_formulario = UpdateWindow(dispositivo_inicial="Computadora")
+        self.ventana_formulario.show()
+        self.close()
+
+
+
     def volver_al_inicio(self):
         from views.start import StartWindow
         self.login = StartWindow()
