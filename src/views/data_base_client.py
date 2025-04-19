@@ -177,10 +177,15 @@ class BaseDateWindow(QWidget):
                 self.table_widget.setItem(row_index, col_index, item)
 
     def volver_al_inicio(self):
+        from views.alertas import mostrar_alerta
+        mostrar_alerta("En desarrollo", "Esta función todavía no está disponible. Estamos trabajando en ello.", 400, 300)
+        """ De momento no se deshabilita
         from views.start import StartWindow
         self.login = StartWindow()
         self.login.show()
         self.close()
+        """
+        
 
     def abrir_actualizar_base(self):
         from views.add_date import UpdateWindow
