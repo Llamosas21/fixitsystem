@@ -39,6 +39,9 @@ if __name__ == "__main__":
 
     os.system('clear')  # Limpia la consola (en sistemas tipo Unix)
 
+    #--- !!CUIDADO BORRA BASE¡¡ ---
+    #borrar_base_datos("src/database/fixitsystem.db")
+
     # --- Ventana inicial del sistema ---
     # ventana = LoginWindow()                  # Pantalla de login
     # ventana = BaseComputadoraWindow()       # Vista de base de datos de computadoras
