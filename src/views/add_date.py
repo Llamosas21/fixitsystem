@@ -9,8 +9,9 @@ from views.utils.resource_finder import cargar_fuente_personalizada
 
 class UpdateWindow(QWidget):
     closed = Signal()
-    def __init__(self):
+    def __init__(self, dispositivo_inicial="Personalizado"):
         super().__init__()
+        self.dispositivo_inicial = dispositivo_inicial
         self.campos = {}
         self.setWindowTitle("FixItSystem - Actualizar Datos")
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMaximizeButtonHint)
@@ -40,18 +41,24 @@ class UpdateWindow(QWidget):
 
         # GRID LAYOUT dentro del contenedor
         self.grid_layout = QGridLayout()
+        self.grid_layout.setVerticalSpacing(10)
+
+        # ComboBox para elegir dispositivo
         self.campo_dispositivo = QComboBox()
         self.campo_dispositivo.addItems(["Personalizado", "Computadora", "Notebook", "Consola", "Celular", "Tablet"])
-        self.campo_dispositivo.setFixedSize(150, 30)
+        self.campo_dispositivo.setCurrentText(self.dispositivo_inicial)
         self.campo_dispositivo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
         self.campo_dispositivo.currentIndexChanged.connect(self.actualizar_campos_por_dispositivo)
 
+        # Insertar el ComboBox al grid layout en la posición (0, 0)
         self.grid_layout.addWidget(self.campo_dispositivo, 0, 0, 1, 2)
-        self.mostrar_campos_personalizado()
-        self.grid_layout.setVerticalSpacing(10)
 
+        # Frame contenedor con layout que incluye el grid
         frame_contenedor_layout = QVBoxLayout(self.frame_contenedor)
         frame_contenedor_layout.addLayout(self.grid_layout)
+
+        # Mostrar campos personalizados o del dispositivo inicial
+        self.actualizar_campos_por_dispositivo()
 
         # BOTONES (Editar, Agregar, Eliminar)
         boton_estilo = """
@@ -344,7 +351,6 @@ class UpdateWindow(QWidget):
         self.base = BaseDateWindow()
         self.base.show()
         self.close()
-
 
     def editar(self):
         from src.controllers.client_controller import ClientController
