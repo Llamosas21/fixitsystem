@@ -1,16 +1,25 @@
 # FixItSystem
-Sistema de gestión para el control de servicios técnicos y garantias.
 
-FixItSystem es una aplicación que permite gestionar datos de usuarios, administrar servicios técnicos, registrar garantias, generar Eliminar y gestionar historias clínicas de productos. Está diseñada para ayudar a las empresas a llevar un control organizado y eficiente de los productos y servicios que ofrecen.
+**FixItSystem** es una aplicación de escritorio para la gestión de servicios técnicos, clientes y garantías de productos. Está diseñada para ayudar a técnicos, talleres o pequeñas empresas a llevar un control detallado y eficiente de sus procesos y registros.
 
-## Características
-- **Gestión de usuarios**: Crear, editar y eliminar usuarios del sistema.
-- **Administración de servicios técnicos**: Registra y administra los detalles de cada servicio técnico realizado.
-- **Registro de garantias**: Permite el seguimiento y registro de garantias de los productos.
-- **Generación de Eliminar**: Crea Eliminar y Editar técnicas basadas en plantillas configurables.
-- **Historia clínica de productos**: Mantén un historial detallado de cada producto.
+## 🛠️ Características
 
-## Tecnologías Usadas
-- **Python**: Lenguaje de programación principal.
-- **PySide6**: Framework para la interfaz gráfica de usuario (GUI), basado en Qt.
-- **SQLite**: Base de datos ligera para almacenamiento de datos.
+- **Gestión de usuarios**: Crear, editar y eliminar registros de clientes.
+- **Administración de servicios técnicos**: Registrar información detallada sobre cada reparación, revisión o mantenimiento realizado.
+- **Registro de garantías**: Control de vigencia y estado de garantías asociadas a los productos atendidos.
+- **Generación de boletas y reportes**: Crear, editar e imprimir boletas/resúmenes técnicos a partir de plantillas personalizables.
+- **Historia clínica de productos**: Llevar un historial completo de cada dispositivo (cambios, problemas recurrentes, mantenimientos, componentes reemplazados, etc.).
+
+
+## 💻 Tecnologías utilizadas
+
+- **Python 3.11+**: Lenguaje principal del proyecto.
+- **PySide6 6.8.2.1**: Framework para la interfaz gráfica de usuario (GUI), basado en Qt 6.
+- **SQLite**: Base de datos embebida, ideal para entornos livianos sin servidor externo.
+- **WeasyPrint 65.1**: Motor de generación de archivos PDF a partir de contenido HTML y CSS.
+
+
+## 🏳️ Objetivo
+
+Brindar una herramienta accesible, rápida y confiable para el seguimiento técnico de equipos, orientada a técnicos independientes, negocios locales y servicios post-venta.
+
