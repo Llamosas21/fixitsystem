@@ -46,7 +46,7 @@ class UpdateWindow(QWidget):
 
         # ComboBox para elegir dispositivo
         self.campo_dispositivo = QComboBox()
-        self.campo_dispositivo.addItems(["Personalizado", "Computadora", "Notebook", "Consola", "Celular", "Tablet"])
+        self.campo_dispositivo.addItems(["Personalizado", "Computadora", "Impresora", "Notebook", "Consola", "Celular", "Tablet"])
         self.campo_dispositivo.setCurrentText(self.dispositivo_inicial)
         self.campo_dispositivo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
         self.campo_dispositivo.currentIndexChanged.connect(self.actualizar_campos_por_dispositivo)
@@ -149,6 +149,14 @@ class UpdateWindow(QWidget):
             "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado"]
         self._agregar_campos(etiquetas)
        
+    def mostrar_campos_impresora(self):
+        etiquetas = [
+            "fecha_de_ingreso", "Estado general", "Tipo de impresora", "Nombre", "garantia",
+            "Marca", "Placa", "telefono", "Modelo", "Conectividad",
+            "Tipo de tinta", "Correo", "Número de serie", "Uso estimado", "Estado"
+        ]
+        self._agregar_campos(etiquetas)
+
     def mostrar_campos_computadora(self):
         etiquetas = [
             "fecha_de_ingreso", "Procesador", "tarjeta_grafica", "Nombre", "garantia",
@@ -293,6 +301,9 @@ class UpdateWindow(QWidget):
         if tipo_dispositivo == "Computadora":
             self.mostrar_campos_computadora()
             self.cargar_datos_dispositivo(self.dispositivo_info)
+        elif tipo_dispositivo == "Impresora":
+            self.mostrar_campos_impresora()
+            self.cargar_datos_dispositivo(self.dispositivo_info)
         elif tipo_dispositivo == "Notebook":
             self.mostrar_campos_notebook(self.dispositivo_info)
         elif tipo_dispositivo == "Consola":
@@ -305,33 +316,11 @@ class UpdateWindow(QWidget):
             self.mostrar_campos_personalizado()
 
     def cargar_datos_dispositivo(self, dispositivo):
-        # Convertimos y preparamos los datos para ser cargados en los widgets
-        datos_dispositivo = {
-            "nombre": dispositivo["nombre"],
-            "telefono": dispositivo["telefono"],
-            "modelo": dispositivo["modelo"],
-            "placa": dispositivo["placa"],
-            "pantalla": dispositivo["pantalla"],
-            "correo": dispositivo["correo"],
-            "sistema_operativo": dispositivo["sistema_operativo"],
-            "ram": dispositivo["ram"],
-            "procesador": dispositivo["procesador"],
-            "memoria": dispositivo["memoria"],
-            "fuente": dispositivo["fuente"],
-            "tarjeta_grafica": dispositivo["tarjeta_grafica"],
-            "garantia": QDate.fromString(dispositivo["garantia"], "dd-MM-yyyy"),
-            "fecha_de_ingreso": QDate.fromString(dispositivo["fecha_ingreso"], "dd-MM-yyyy"),
-            "estado": dispositivo["estado"],
-            "precio": dispositivo["precio"], 
-            "notas": dispositivo["notas"]
-        }
-        # Asignamos los valores a los widgets
-        for clave, valor in datos_dispositivo.items():
-            widget = self.campos.get(clave)
+        for clave, widget in self.campos.items():
+            valor = dispositivo.get(clave)
 
-            if widget is None:
-                print(f"⚠️ Campo no encontrado en self.campos: '{clave}'")  # Verificación extra
-                continue
+            if valor is None:
+                continue  # El campo no está presente en los datos del dispositivo
 
             if isinstance(widget, QLineEdit):
                 widget.setText(str(valor))
@@ -344,8 +333,19 @@ class UpdateWindow(QWidget):
                 if index != -1:
                     widget.setCurrentIndex(index)
 
-            elif isinstance(widget, QDateEdit) and isinstance(valor, QDate):
-                widget.setDate(valor)
+            elif isinstance(widget, QSpinBox):
+                try:
+                    widget.setValue(int(valor))
+                except ValueError:
+                    widget.setValue(1)  # Valor por defecto
+
+            elif isinstance(widget, QDateEdit):
+                if isinstance(valor, QDate):
+                    widget.setDate(valor)
+                elif isinstance(valor, str):
+                    fecha = QDate.fromString(valor, "dd-MM-yyyy")
+                    if fecha.isValid():
+                        widget.setDate(fecha)
 
 #MÉTODOS DE: VOLVER, REFRESCAR EDITAR, AGREGAR, ELIMINAR 
     def volver(self):
@@ -563,14 +563,26 @@ class UpdateWindow(QWidget):
                 for etiqueta, widget in self.campos.items():
                     clave = etiqueta.lower().replace(" ", "_")
 
-                    if hasattr(widget, "text"):  # QLineEdit
-                        campos_dispositivo[clave] = widget.text().strip()
+                    try:
+                        if isinstance(widget, QLineEdit):
+                            campos_dispositivo[clave] = widget.text().strip()
 
-                    elif isinstance(widget, QDateEdit):
-                        campos_dispositivo[clave] = widget.date().toString("yyyy-MM-dd")
+                        elif isinstance(widget, QDateEdit):
+                            campos_dispositivo[clave] = widget.date().toString("yyyy-MM-dd")
 
-                    elif isinstance(widget, QComboBox):
-                        campos_dispositivo[clave] = widget.currentText()
+                        elif isinstance(widget, QComboBox):
+                            campos_dispositivo[clave] = widget.currentText()
+
+                        elif isinstance(widget, QSpinBox):
+                            campos_dispositivo[clave] = widget.value()
+
+                        elif isinstance(widget, QTextEdit):
+                            campos_dispositivo[clave] = widget.toPlainText().strip()
+
+                    except RuntimeError as e:
+                        print(f"❌ Error al acceder al campo '{clave}': {e}")
+                        continue
+
 
             # Agregar notas si el campo existe
             if hasattr(self, "nota"):
