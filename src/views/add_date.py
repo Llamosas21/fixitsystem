@@ -644,7 +644,6 @@ class UpdateWindow(QWidget):
         self.boleta.show()
         self.close()
 
-
     def closeEvent(self, event):
             self.closed.emit()  # Emitir señal al cerrar
             super().closeEvent(event)
