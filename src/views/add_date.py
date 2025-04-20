@@ -18,6 +18,7 @@ class UpdateWindow(QWidget):
         self.showMaximized()
         self.setStyleSheet("QWidget {background-color: #0d0d0d;}")
         self.custom_font = cargar_fuente_predeterminada()
+        self.modificado = False
         self._crear_interfaz()
        
     def _crear_interfaz(self):
@@ -347,7 +348,7 @@ class UpdateWindow(QWidget):
             elif isinstance(widget, QDateEdit) and isinstance(valor, QDate):
                 widget.setDate(valor)
 
-#MÉTODOS DE: VOLVER, EDITAR, AGREGAR, ELIMINAR 
+#MÉTODOS DE: VOLVER, REFRESCAR EDITAR, AGREGAR, ELIMINAR 
     def volver(self):
         from views.data_base_client import BaseDateWindow
 
@@ -360,6 +361,20 @@ class UpdateWindow(QWidget):
             print(f"⚠️ Error al cerrar la conexión: {e}")
 
         self.base = BaseDateWindow()
+        self.base.show()
+        self.close()
+
+    def refrescar(self, cliente_info, dispositivo_info):
+        from views.data_base_client import BaseDateWindow
+
+        try:
+            if hasattr(self, 'connection') and self.connection:
+                self.connection.close()
+                #print("🔄 Conexión cerrada para refrescar.")
+        except Exception as e:
+            print(f"⚠️ Error al cerrar la conexión: {e}")
+
+        self.base = BaseDateWindow(cliente_info=cliente_info, dispositivo_info=dispositivo_info)
         self.base.show()
         self.close()
 
@@ -470,6 +485,10 @@ class UpdateWindow(QWidget):
             print(f"❌ Error al editar datos del dispositivo ({dispositivo}):", e)
             import traceback
             traceback.print_exc()
+        self.cliente_info = datos_cliente
+        self.dispositivo_info = campos_dispositivo
+        self.modificado = True 
+
 
     def agregar(self):
         from src.controllers.client_controller import ClientController
@@ -631,18 +650,37 @@ class UpdateWindow(QWidget):
 
     def imprimir(self):
         from src.views.exports.boleta.view_boleta import ViewBoleta
-        from src.utils.alertas import mostrar_alerta
+        from src.utils.alertas import mostrar_alerta, mostrar_confirmacion
 
+        #print(f"Estado de modificado después de editar: {self.modificado}") 
         # Verifica si los datos están disponibles
         if not hasattr(self, 'cliente_info') or not hasattr(self, 'dispositivo_info') or not self.cliente_info or not self.dispositivo_info:
             # Muestra la alerta si los datos no están definidos o son vacíos
             mostrar_alerta("Error", "No se seleccionó ningún dato.", 400, 200)
             return  # Detiene la ejecución si no hay datos
 
-        # Si los datos están disponibles, crea la boleta
-        self.boleta = ViewBoleta(self.cliente_info, self.dispositivo_info)
-        self.boleta.show()
-        self.close()
+        # Verifica si los datos han sido modificados
+        if hasattr(self, 'modificado') and not self.modificado:
+            valor = mostrar_confirmacion(
+                "Confirmar cambios",
+                "¿Quieres guardar los cambios antes de imprimir?",
+                400, 200
+            )
+            
+            if valor:
+                self.editar()  # esto guarda, y también actualiza cliente_info y dispositivo_info
+                self.boleta = ViewBoleta(self.cliente_info, self.dispositivo_info)
+                self.boleta.show()
+                self.close()
+            else:
+                self.boleta = ViewBoleta(self.cliente_info, self.dispositivo_info)
+                self.boleta.show()
+                self.close()
+        else:
+            # Si no hay modificaciones, muestra la boleta sin preguntar
+            self.boleta = ViewBoleta(self.cliente_info, self.dispositivo_info)
+            self.boleta.show()
+            self.close()
 
     def closeEvent(self, event):
             self.closed.emit()  # Emitir señal al cerrar
