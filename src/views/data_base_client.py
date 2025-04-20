@@ -151,7 +151,7 @@ class BaseDateWindow(QWidget):
         # Ajustar el tamaño del botón
         self.arrow_button.setIconSize(icon_size)
         self.arrow_button.setFixedSize(icon_size.width(), icon_size.height()) 
-        self.arrow_button.move(20, 20) 
+        self.arrow_button.move(20, 40) 
 
         # Acción del botón
         self.arrow_button.clicked.connect(self.volver_al_inicio)    
