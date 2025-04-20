@@ -631,9 +631,19 @@ class UpdateWindow(QWidget):
 
     def imprimir(self):
         from src.views.exports.boleta.view_boleta import ViewBoleta
+        from src.utils.alertas import mostrar_alerta
+
+        # Verifica si los datos están disponibles
+        if not hasattr(self, 'cliente_info') or not hasattr(self, 'dispositivo_info') or not self.cliente_info or not self.dispositivo_info:
+            # Muestra la alerta si los datos no están definidos o son vacíos
+            mostrar_alerta("Error", "No se seleccionó ningún dato.", 400, 200)
+            return  # Detiene la ejecución si no hay datos
+
+        # Si los datos están disponibles, crea la boleta
         self.boleta = ViewBoleta(self.cliente_info, self.dispositivo_info)
         self.boleta.show()
         self.close()
+
 
     def closeEvent(self, event):
             self.closed.emit()  # Emitir señal al cerrar
