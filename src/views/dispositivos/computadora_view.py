@@ -64,7 +64,7 @@ class BaseComputadoraWindow(QWidget):
             }
         """)
         
-        self.arrow_button.move(10, 10)
+        self.arrow_button.move(20, 45)
         self.arrow_button.clicked.connect(self.volver)
         self.arrow_button.raise_()
         self.arrow_button.show()
