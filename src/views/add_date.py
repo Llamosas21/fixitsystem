@@ -60,7 +60,7 @@ class UpdateWindow(QWidget):
         # Mostrar campos personalizados o del dispositivo inicial
         self.actualizar_campos_por_dispositivo()
 
-        # BOTONES (Editar, Agregar, Eliminar)
+        # BOTONES (Editar, Agregar, Eliminar, Imprimir)
         boton_estilo = """
             QPushButton {
                 background-color: #102540;
@@ -77,8 +77,9 @@ class UpdateWindow(QWidget):
         self.boton_editar = QPushButton("Editar", self)
         self.boton_agregar = QPushButton("Agregar", self)
         self.boton_eliminar = QPushButton("Eliminar", self)
+        self.boton_descargar = QPushButton("Imprimir", self)
 
-        for boton in [self.boton_editar, self.boton_agregar, self.boton_eliminar]:
+        for boton in [self.boton_editar, self.boton_agregar, self.boton_eliminar, self.boton_descargar]:
             boton.setStyleSheet(boton_estilo)
             boton.setFixedSize(120, 35)
 
@@ -86,12 +87,14 @@ class UpdateWindow(QWidget):
         botones_layout.addWidget(self.boton_editar)
         botones_layout.addWidget(self.boton_agregar)
         botones_layout.addWidget(self.boton_eliminar)
+        botones_layout.addWidget(self.boton_descargar)
         botones_layout.setAlignment(Qt.AlignCenter)
 
         # Acciones
         self.boton_editar.clicked.connect(self.editar)
         self.boton_agregar.clicked.connect(self.agregar)
         self.boton_eliminar.clicked.connect(self.eliminar)
+        self.boton_descargar.clicked.connect(self.imprimir)
 
         # Agregar al frame layout
         frame_layout.addWidget(self.label_titulo, alignment=Qt.AlignHCenter | Qt.AlignTop)
@@ -120,9 +123,10 @@ class UpdateWindow(QWidget):
                 border-radius: 5px;
             }
         """)
-        self.arrow_button.move(20, 20)  # Posición absoluta, como en la segunda interfaz
+        self.arrow_button.move(20, 40)  # Posición absoluta, como en la segunda interfaz
         self.arrow_button.clicked.connect(self.volver)
 
+    #DEDICADO AL MANEJO DEL FORMULARIO
     def limpiar_grid_layout(self):
         """Limpia todos los widgets del grid_layout excepto el QComboBox."""
         for i in reversed(range(self.grid_layout.count())):
@@ -276,27 +280,29 @@ class UpdateWindow(QWidget):
 #MÉTODOS PARA CARGAR LOS DATOS DESDE celda_clickeada (data_base_client.py)
     def cargar_datos_editar(self, cliente_seleccionado, dispositivos):
         self.id_cliente = cliente_seleccionado.get("ID Cliente")
-        dispositivo = dispositivos[0]
+        self.cliente_info = cliente_seleccionado             # Guardar cliente
+        self.dispositivo_info = dispositivos[0]              # Guardar dispositivo
+
         tipo_dispositivo = cliente_seleccionado.get("Dispositivo")
 
-        # Evita que se dispare el cambio automáticamente
         self.campo_dispositivo.blockSignals(True)
         self.campo_dispositivo.setCurrentText(tipo_dispositivo)
         self.campo_dispositivo.blockSignals(False)
 
         if tipo_dispositivo == "Computadora":
             self.mostrar_campos_computadora()
-            self.cargar_datos_dispositivo(dispositivo)
+            self.cargar_datos_dispositivo(self.dispositivo_info)
         elif tipo_dispositivo == "Notebook":
-            self.mostrar_campos_notebook(dispositivo)
+            self.mostrar_campos_notebook(self.dispositivo_info)
         elif tipo_dispositivo == "Consola":
-            self.mostrar_campos_consola(dispositivo)
+            self.mostrar_campos_consola(self.dispositivo_info)
         elif tipo_dispositivo == "Celular":
-            self.mostrar_campos_celular(dispositivo)
+            self.mostrar_campos_celular(self.dispositivo_info)
         elif tipo_dispositivo == "Tablet":
-            self.mostrar_campos_tablet(dispositivo)
+            self.mostrar_campos_tablet(self.dispositivo_info)
         else:
             self.mostrar_campos_personalizado()
+
 
     def cargar_datos_dispositivo(self, dispositivo):
         # Convertimos y preparamos los datos para ser cargados en los widgets
@@ -319,7 +325,6 @@ class UpdateWindow(QWidget):
             "precio": dispositivo["precio"], 
             "notas": dispositivo["notas"]
         }
-
         # Asignamos los valores a los widgets
         for clave, valor in datos_dispositivo.items():
             widget = self.campos.get(clave)
@@ -623,6 +628,12 @@ class UpdateWindow(QWidget):
         # Mensaje de éxito
         mostrar_alerta("Eliminación exitosa", "El cliente y su dispositivo han sido eliminados correctamente.", 400, 300)
         self.volver()
+
+    def imprimir(self):
+        from src.views.exports.boleta.view_boleta import ViewBoleta
+        self.boleta = ViewBoleta(self.cliente_info, self.dispositivo_info)
+        self.boleta.show()
+        self.close()
 
     def closeEvent(self, event):
             self.closed.emit()  # Emitir señal al cerrar
