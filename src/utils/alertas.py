@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMessageBox, QInputDialog, QLineEdit
+from PySide6.QtWidgets import QMessageBox #QInputDialog, QLineEdit
 
 def mostrar_confirmacion(titulo, mensaje,ancho,alto):
     msg = QMessageBox()
