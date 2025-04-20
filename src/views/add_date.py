@@ -304,7 +304,6 @@ class UpdateWindow(QWidget):
         else:
             self.mostrar_campos_personalizado()
 
-
     def cargar_datos_dispositivo(self, dispositivo):
         # Convertimos y preparamos los datos para ser cargados en los widgets
         datos_dispositivo = {
@@ -485,10 +484,13 @@ class UpdateWindow(QWidget):
             print(f"❌ Error al editar datos del dispositivo ({dispositivo}):", e)
             import traceback
             traceback.print_exc()
+
+        # Se agrega dispositivo al diccionario de cliente
+        datos_cliente["dispositivo"] = dispositivo
+
         self.cliente_info = datos_cliente
         self.dispositivo_info = campos_dispositivo
-        self.modificado = True 
-
+        self.modificado = True
 
     def agregar(self):
         from src.controllers.client_controller import ClientController
@@ -651,7 +653,12 @@ class UpdateWindow(QWidget):
     def imprimir(self):
         from src.views.exports.boleta.view_boleta import ViewBoleta
         from src.utils.alertas import mostrar_alerta, mostrar_confirmacion
-
+        """ SE VERIFCA EL ESTADO DE LOS DATOS
+        print("Datos del Cliente (add_date.py imprimir):")
+        print(self.cliente_info)
+        print("Datos del Dispositivo:")
+        print(self.dispositivo_info)
+        """
         #print(f"Estado de modificado después de editar: {self.modificado}") 
         # Verifica si los datos están disponibles
         if not hasattr(self, 'cliente_info') or not hasattr(self, 'dispositivo_info') or not self.cliente_info or not self.dispositivo_info:
