@@ -148,9 +148,9 @@ class BaseComputadoraWindow(QWidget):
         for col in range(self.table_widget.columnCount()):
             if col in [1]:  # ID Cliente 
                 self.table_widget.setColumnWidth(col, 90)
-            elif col in [0, 19]:  # ID y Notas 
+            elif col in [0]:  # ID  
                 self.table_widget.setColumnWidth(col, 50)
-            elif col in [3, 4, 6, 8, 13, 14, 18]:  # Campos de texto más largo
+            elif col in [3, 4, 6, 8, 13, 14]:  # Campos de texto más largo
                 header.setSectionResizeMode(col, QHeaderView.ResizeToContents)
             else:
                 header.setSectionResizeMode(col, QHeaderView.Interactive)
