@@ -13,6 +13,9 @@ from src.views.data_base_client import BaseDateWindow
 from src.views.dispositivos.computadora_view import BaseComputadoraWindow
 # from src.views.add_date import UpdateWindow  # Pantalla para agregar un dispositivo (opcional)
 
+#vista Secundaria
+from src.views.exports.boleta.view_boleta import ViewBoleta
+
 # Inicializa la base de datos (crea tabla si no existe)
 cliente_model = ClienteModel()
 
@@ -42,10 +45,12 @@ if __name__ == "__main__":
     #--- !!CUIDADO BORRAR BASE¡¡ ---
     #borrar_base_datos("src/database/fixitsystem.db")
 
-    # --- Ventana inicial del sistema ---
-    # ventana = LoginWindow()                  # Pantalla de login
-    # ventana = BaseComputadoraWindow()       # Vista de base de datos de computadoras
-    ventana = BaseDateWindow()                # Vista general de base de datos de clientes
+    # --- Ventanas principales del sistema ---
+    #ventana = LoginWindow()                 # Pantalla de login
+    #ventana = BaseComputadoraWindow()       # Vista de base de datos de computadoras
+    ventana = BaseDateWindow()              # Vista general de base de datos de clientes
 
-    ventana.show()
+    # --- Ventanas Secundarias del sistema ---
+    #ventana = ViewBoleta()                 # Vista boleta
+    #ventana.mostrar_vista_previa()         # Llama al botón y abre un html (sin hacer nada)
     sys.exit(app.exec())
