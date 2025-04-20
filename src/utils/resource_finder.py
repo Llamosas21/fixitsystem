@@ -1,4 +1,4 @@
-import os
+import sys,os,re
 from PySide6.QtGui import QFontDatabase, QFont
 
 def cargar_fuente_predeterminada():
@@ -25,3 +25,30 @@ def cargar_fuente_predeterminada():
     print(f"Fuente predeterminada (es itálica): {fuente_predeterminada.italic()}")
     """
     return fuente_predeterminada    #La fuente depende de la configuración de sistema
+
+
+def get_ruta_base():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+def get_ruta_arch_exportados():
+    return os.path.join(get_ruta_base(), "arch_exportados")
+
+def crear_directorio_cliente(nombre_completo, id_cliente):
+    # Sanitizar nombre (quitar espacios, tildes, símbolos raros, etc.)
+    nombre_limpio = re.sub(r'\W+', '', nombre_completo.replace(" ", "_"))
+
+    # Construir nombre de carpeta
+    carpeta = f"Cliente_{nombre_limpio}_ID_{id_cliente}"
+
+    # Ruta base del proyecto (asume que estás parado en src o más profundo)
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))  # Sube desde /src/views/exports
+    ruta_exports = os.path.join(base_dir, "arch_exportados")
+    ruta_cliente = os.path.join(ruta_exports, carpeta)
+
+    # Crear carpeta si no existe
+    os.makedirs(ruta_cliente, exist_ok=True)
+
+    print(f"📁 Ruta de exportación: {ruta_cliente}")
+    return ruta_cliente
