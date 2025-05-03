@@ -78,9 +78,9 @@ class UpdateWindow(QWidget):
         self.boton_editar = QPushButton("Editar", self)
         self.boton_agregar = QPushButton("Agregar", self)
         self.boton_eliminar = QPushButton("Eliminar", self)
-        self.boton_descargar = QPushButton("Imprimir", self)
+        self.boton_imprimir = QPushButton("Imprimir", self)
 
-        for boton in [self.boton_editar, self.boton_agregar, self.boton_eliminar, self.boton_descargar]:
+        for boton in [self.boton_editar, self.boton_agregar, self.boton_eliminar, self.boton_imprimir]:
             boton.setStyleSheet(boton_estilo)
             boton.setFixedSize(120, 35)
 
@@ -88,14 +88,14 @@ class UpdateWindow(QWidget):
         botones_layout.addWidget(self.boton_editar)
         botones_layout.addWidget(self.boton_agregar)
         botones_layout.addWidget(self.boton_eliminar)
-        botones_layout.addWidget(self.boton_descargar)
+        botones_layout.addWidget(self.boton_imprimir)
         botones_layout.setAlignment(Qt.AlignCenter)
 
         # Acciones
         self.boton_editar.clicked.connect(self.editar)
         self.boton_agregar.clicked.connect(self.agregar)
         self.boton_eliminar.clicked.connect(self.eliminar)
-        self.boton_descargar.clicked.connect(self.imprimir)
+        self.boton_imprimir.clicked.connect(self.imprimir)
 
         # Agregar al frame layout
         frame_layout.addWidget(self.label_titulo, alignment=Qt.AlignHCenter | Qt.AlignTop)
@@ -133,13 +133,20 @@ class UpdateWindow(QWidget):
         for i in reversed(range(self.grid_layout.count())):
             widget = self.grid_layout.itemAt(i).widget()
             if widget and widget != self.campo_dispositivo:
-                widget.deleteLater()
+                widget.hide()  # En vez de eliminarlo, solo lo ocultamos
+                #widget.deleteLater()  # Elimina el widget de manera segura
            
     def actualizar_campos_por_dispositivo(self):
         """Actualiza los campos según el dispositivo seleccionado."""
-        self.limpiar_grid_layout()
+        self.limpiar_grid_layout()  # Limpiar campos previos del layout
+        
+        # Obtiene el dispositivo seleccionado
         dispositivo = self.campo_dispositivo.currentText()
+        
+        # Determina el método adecuado para mostrar los campos según el dispositivo seleccionado
         metodo = getattr(self, f"mostrar_campos_{dispositivo.lower()}", self.mostrar_campos_personalizado)
+        
+        # Llama al método correspondiente
         metodo()
 
     def mostrar_campos_personalizado(self):
@@ -151,11 +158,13 @@ class UpdateWindow(QWidget):
        
     def mostrar_campos_impresora(self):
         etiquetas = [
-            "fecha_de_ingreso", "Estado general", "Tipo de impresora", "Nombre", "garantia",
+            "fecha_de_ingreso", "estado_general", "tipo_impresora", "Nombre", "garantia",
             "Marca", "Placa", "telefono", "Modelo", "Conectividad",
-            "Tipo de tinta", "Correo", "Número de serie", "Uso estimado", "Estado"
+            "tipo_tinta", "Correo", "numero_serie", "uso_estimado", "Estado", "precio"
         ]
         self._agregar_campos(etiquetas)
+        self.cargar_datos_genericos_impresora()
+
 
     def mostrar_campos_computadora(self):
         etiquetas = [
@@ -194,64 +203,69 @@ class UpdateWindow(QWidget):
         self._agregar_campos(etiquetas)
 
     def _agregar_campos(self, etiquetas):
-        columnas = 4
-        for i, texto in enumerate(etiquetas):
-            label = QLabel(texto, self)
-            label.setStyleSheet("color: white; font-size: 12px; font-weight: bold;")
-            label.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        try:
+            columnas = 4
+            for i, texto in enumerate(etiquetas):
+                label = QLabel(texto, self)
+                label.setStyleSheet("color: white; font-size: 12px; font-weight: bold;")
+                label.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
 
-            # Campos especiales para "fecha_de_ingreso" y "garantia"
-            if texto in ["fecha_de_ingreso", "garantia"]:
-                campo = QDateEdit(self)
-                campo.setDate(QDate.currentDate())  
-                campo.setDisplayFormat("dd-MM-yyyy")  
-                campo.setCalendarPopup(True)  
-                campo.setFixedSize(130, 30) 
-                campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
+                # Campos especiales para "fecha_de_ingreso" y "garantia"
+                if texto in ["fecha_de_ingreso", "garantia"]:
+                    campo = QDateEdit(self)
+                    campo.setDate(QDate.currentDate())  
+                    campo.setDisplayFormat("dd-MM-yyyy")  
+                    campo.setCalendarPopup(True)  
+                    campo.setFixedSize(130, 30) 
+                    campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
 
-            # Campo especial para "Estado"
-            elif texto == "Estado" or texto == "Mandos estado" or texto == "Estado Cargador":
-                campo = QComboBox(self)
-                campo.addItems(["New", "Used", "Refurbished"])
-                campo.setFixedSize(130, 30)
-                campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
+                # Campo especial para "Estado"
+                elif texto == "Estado" or texto == "Mandos estado" or texto == "Estado Cargador":
+                    campo = QComboBox(self)
+                    campo.addItems(["New", "Used", "Refurbished"])
+                    campo.setFixedSize(130, 30)
+                    campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
 
-            # Campo especial para "Cantidad Mandos"
-            elif texto == "Cantidad Mandos":
-                campo = QSpinBox(self)
-                campo.setRange(1, 10)  # Establece el rango de valores permitidos (1 a 10)
-                campo.setFixedSize(130, 30)
-                campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
+                # Campo especial para "Cantidad Mandos"
+                elif texto == "Cantidad Mandos":
+                    campo = QSpinBox(self)
+                    campo.setRange(1, 10)  # Establece el rango de valores permitidos (1 a 10)
+                    campo.setFixedSize(130, 30)
+                    campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
 
-            # Campo genérico (QLineEdit)
-            else:
-                campo = QLineEdit(self)
-                campo.setFixedSize(130, 30)
-                campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
+                # Campo genérico (QLineEdit)
+                else:
+                    campo = QLineEdit(self)
+                    campo.setFixedSize(130, 30)
+                    campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
 
-            self.campos[texto.lower()] = campo
-            fila, columna = divmod(i, columnas)
-            self.grid_layout.addWidget(label, fila + 1, columna * 2)
-            self.grid_layout.addWidget(campo, fila + 1, columna * 2 + 1)
+                self.campos[texto.lower()] = campo  # Asegúrate de no duplicar claves
+                fila, columna = divmod(i, columnas)
+                self.grid_layout.addWidget(label, fila + 1, columna * 2)
+                self.grid_layout.addWidget(campo, fila + 1, columna * 2 + 1)
 
-        # Añadir QTextEdit "Notas" debajo de los campos
-        fila_actual = (len(etiquetas) // columnas) + 1
-        if len(etiquetas) % columnas != 0:
-            fila_actual += 1
+            # Añadir QTextEdit "Notas" debajo de los campos
+            fila_actual = (len(etiquetas) // columnas) + 1
+            if len(etiquetas) % columnas != 0:
+                fila_actual += 1
 
-        self.nota = QTextEdit()
-        self.nota.setFixedHeight(200)
-        self.nota.setPlaceholderText("Notas")
-        self.nota.setStyleSheet("""
-            background-color: #2a4a75;
-            color: white;
-            border-radius: 5px;
-            padding: 5px;
-            margin: 10px;
-            font-weight: bold;
-        """)
-        self.grid_layout.addWidget(self.nota, fila_actual, 0, 1, columnas * 2)
-        self.campos["notas"] = self.nota
+            self.nota = QTextEdit()
+            self.nota.setFixedHeight(200)
+            self.nota.setPlaceholderText("Notas")
+            self.nota.setStyleSheet("""
+                background-color: #2a4a75;
+                color: white;
+                border-radius: 5px;
+                padding: 5px;
+                margin: 10px;
+                font-weight: bold;
+            """)
+            self.grid_layout.addWidget(self.nota, fila_actual, 0, 1, columnas * 2)
+            self.campos["notas"] = self.nota
+            
+        except Exception as e:
+            print(f"Ocurrió un error: {e}")
+
 
     def cargar_datos_genericos(self): #PARA HACER TEST EN CASO DE NO USARSE COMENTAR 
         genericos = {
@@ -285,6 +299,41 @@ class UpdateWindow(QWidget):
             elif isinstance(widget, QDateEdit) and isinstance(valor, QDate):
                 widget.setDate(valor)
         #print("Se Agregan los datos genericos")
+
+    def cargar_datos_genericos_impresora(self):  # PARA HACER TEST EN CASO DE NO USARSE COMENTAR
+        genericos = {
+            "nombre": "María López",
+            "telefono": "0987654321",
+            "modelo": "Epson L3150",
+            "correo": "maria@example.com",
+            "estado_general": "Funciona correctamente",
+            "tipo_impresora": "Multifunción",
+            "conectividad": "Wi-Fi",
+            "tipo_tinta": "Tinta continua",
+            "uso_estimado": "Uso doméstico moderado",
+            "garantia": QDate.currentDate(),
+            "fecha_de_ingreso": QDate.currentDate(),
+            "precio": "3.500.000",
+            "estado": "En revisión",
+            "marca": "Epson",
+            "placa": "XYZ456",
+            "numero_serie": "SN-987654321"
+        }
+           
+
+        for clave, valor in genericos.items():
+            widget = self.campos.get(clave.lower().replace(" ", "_")) or self.campos.get(clave)
+            if isinstance(widget, QLineEdit):
+                widget.setText(valor)
+            elif isinstance(widget, QTextEdit):
+                widget.setPlainText(valor)
+            elif isinstance(widget, QComboBox):
+                index = widget.findText(valor)
+                if index != -1:
+                    widget.setCurrentIndex(index)
+            elif isinstance(widget, QDateEdit) and isinstance(valor, QDate):
+                widget.setDate(valor)
+
 
 #MÉTODOS PARA CARGAR LOS DATOS DESDE celda_clickeada (data_base_client.py)
     def cargar_datos_editar(self, cliente_seleccionado, dispositivos):
@@ -432,6 +481,7 @@ class UpdateWindow(QWidget):
         # === Editar datos del dispositivo ===
         dispositivos_controladores = {
             "Computadora": ("src.controllers.dispositivo_controller.computadora_controller", "ComputadoraController", "editar_computadora"),
+            "Impresora": ("src.controllers.dispositivo_controller.impresora_controller", "ImpresoraController", "editar_impresora"),
             "Notebook": ("src.controllers.dispositivo_controller.notebook_controller", "NotebookController", "editar_notebook"),
             "Consola": ("src.controllers.dispositivo_controller.consola_controller", "ConsolaController", "editar_consola"),
             "Celular": ("src.controllers.dispositivo_controller.celular_controller", "CelularController", "editar_celular"),
@@ -494,7 +544,7 @@ class UpdateWindow(QWidget):
 
     def agregar(self):
         from src.controllers.client_controller import ClientController
-        from utils.alertas import mostrar_confirmacion
+        from utils.alertas import mostrar_confirmacion,mostrar_alerta
         import uuid
 
         valor = mostrar_confirmacion("Confirmar alta de cliente","¿Estás seguro de que querés agregar este nuevo cliente a la base de datos?",400, 400)
@@ -505,7 +555,7 @@ class UpdateWindow(QWidget):
             if isinstance(fecha_widget, QDateEdit):
                 fecha_ingreso = fecha_widget.date().toString("yyyy-MM-dd")
             else:
-                print("⚠️ Error: El campo 'fecha_de_ingreso' no es un QDateEdit.")
+                mostrar_alerta("⚠️ Error", "El campo 'fecha_de_ingreso' no es un QDateEdit.", 300, 150)
                 return
 
             id_cliente = uuid.uuid4().hex[:16]  # 16 caracteres únicos 
@@ -522,7 +572,7 @@ class UpdateWindow(QWidget):
 
             # Validaciones básicas
             if not datos["nombre"] or not datos["telefono"] or not datos["correo"]:
-                print("⚠️ Error: Nombre, telefono y Correo son obligatorios")
+                mostrar_alerta("⚠️ Error", "El campo Nombre, telefono y Correo son obligatorios.", 300, 150)
                 return
 
             # Enviar datos al controlador
@@ -537,6 +587,7 @@ class UpdateWindow(QWidget):
             # Si se agregó el cliente con éxito, agregar el dispositivo correspondiente
             dispositivos_controladores = {
                 "Computadora": ("src.controllers.dispositivo_controller.computadora_controller", "ComputadoraController", "agregar_computadora"),
+                "Impresora": ("src.controllers.dispositivo_controller.impresora_controller", "ImpresoraController", "agregar_impresora"),
                 "Notebook": ("src.controllers.dispositivo_controller.notebook_controller", "NotebookController", "agregar_notebook"),
                 "Consola": ("src.controllers.dispositivo_controller.consola_controller", "ConsolaController", "agregar_consola"),
                 "Celular": ("src.controllers.dispositivo_controller.celular_controller", "CelularController", "agregar_celular"),
@@ -624,6 +675,7 @@ class UpdateWindow(QWidget):
         # === Eliminar dispositivo correspondiente ===
         dispositivos_controladores = {
             "Computadora": ("src.controllers.dispositivo_controller.computadora_controller", "ComputadoraController", "eliminar_computadora"),
+            "Impresora": ("src.controllers.dispositivo_controller.impresora_controller", "ImpresoraController", "eliminar_impresora"),
             "Notebook": ("src.controllers.dispositivo_controller.notebook_controller", "NotebookController", "eliminar_notebook"),
             "Consola": ("src.controllers.dispositivo_controller.consola_controller", "ConsolaController", "eliminar_consola"),
             "Celular": ("src.controllers.dispositivo_controller.celular_controller", "CelularController", "eliminar_celular"),
@@ -692,14 +744,9 @@ class UpdateWindow(QWidget):
                 self.boleta.show()
                 self.close()
             else:
-                self.boleta = ViewBoleta(self.cliente_info, self.dispositivo_info)
-                self.boleta.show()
-                self.close()
+                return
         else:
-            # Si no hay modificaciones, muestra la boleta sin preguntar
-            self.boleta = ViewBoleta(self.cliente_info, self.dispositivo_info)
-            self.boleta.show()
-            self.close()
+            return
 
     def closeEvent(self, event):
             self.closed.emit()  # Emitir señal al cerrar
