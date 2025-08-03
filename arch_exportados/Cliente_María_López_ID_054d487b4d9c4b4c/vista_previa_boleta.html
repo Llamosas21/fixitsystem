@@ -1,0 +1,132 @@
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            
+@page {
+    size: A4;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #0D0D0D;
+    margin: 0;
+    padding: 0;
+}
+
+.hoja_pdf_A4 {
+    width: 210mm;
+    background: white;
+    margin: auto;
+    font-family: sans-serif;
+    font-size: 9pt;
+    box-sizing: border-box;
+    padding: 10mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+h1 {
+    color: #007acc;
+    text-align: center;
+    font-size: 24pt;
+    margin: 0px 0 130px 0;
+    font-weight: normal;
+}
+
+p {
+    margin: 5px 0;
+    font-size: 9pt;
+    font-weight: normal;
+}
+
+.precio {
+    color: green;
+    font-size: 10pt;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.footer {
+    font-size: 8pt;
+    color: #666;
+    text-align: center;
+    margin-top: 20px;
+}
+
+hr {
+    margin: 10px 0;
+    border: none;
+    border-top: 1px solid #ccc;
+}
+
+.notas {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.notas.impresora {
+    min-height: 105mm;
+}
+
+.notas.computadora {
+    min-height: 95mm;
+}
+
+.campos_impresora {
+    margin-top: 15px;
+    font-size: 9pt;
+}
+
+.campos_impresora p {
+    margin: 5px 0;
+    font-weight: normal;
+    font-size: 9pt;
+}
+
+        </style>
+    </head>
+    <body>
+        <div class="hoja_pdf_A4">
+            <h1>Fixitsystem - Reparación</h1>
+            <p><strong>Cliente:</strong> María López</p>
+            <p><strong>Correo:</strong> maria@example.com</p>
+            <p><strong>Teléfono:</strong> 0987654321</p>
+            <p><strong>Fecha de ingreso:</strong> 2025-04-20</p>
+            <hr>
+            <p><strong>Dispositivo:</strong> Impresora</p>
+            <p><strong>Modelo:</strong> Epson L3150</p>
+
+            <!-- Campos dinámicos -->
+            
+        <div class="campos_impresora">
+            <p><strong>Tipo de Impresora:</strong> Multifunción</p>
+            <p><strong>Marca:</strong> Epson</p>
+            <p><strong>Conectividad:</strong> Wi-Fi</p>
+            <p><strong>Tipo de Tinta:</strong> Tinta continua</p>
+            <p><strong>Uso Estimado:</strong> Uso doméstico moderado</p>
+            <p><strong>Número de Serie:</strong> SN-987654321</p>
+        </div>
+        
+
+            <p><strong>Estado:</strong> New</p>
+            <p><strong>Garantía hasta:</strong> 20-04-2025</p>
+
+            <p class="precio">Precio estimado: $3.500.000</p>
+            <hr>
+            <div class="notas impresora">
+                <p><strong>Descripción de la reparación:</strong></p>
+                <p>df ghjklk,g rsgv ughubyh</p>
+            </div>
+
+            <div class="footer">
+                <p>Gracias por confiar en nosotros.</p>
+            </div>
+        </div>
+    </body>
+</html>

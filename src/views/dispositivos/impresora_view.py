@@ -5,14 +5,15 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QSize
-from src.controllers.dispositivo_controller.computadora_controller import ComputadoraController
+from src.controllers.dispositivo_controller.impresora_controller import ImpresoraController
 from utils.resource_finder import cargar_fuente_predeterminada
 
-class BaseComputadoraWindow(QWidget):
+
+class BaseImpresoraWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("FixItSystem - Base de Datos Computadora")
-        self.controller = ComputadoraController()
+        self.setWindowTitle("FixItSystem - Base de Datos Impresora")
+        self.controller = ImpresoraController()
         self._configurar_ventana()
         self.custom_font = cargar_fuente_predeterminada()
         self._crear_interfaz()
@@ -30,7 +31,7 @@ class BaseComputadoraWindow(QWidget):
         frame_layout = QVBoxLayout(self.frame)
         frame_layout.setSpacing(20)
         
-        self.label_titulo = QLabel("Computadoras Registradas")
+        self.label_titulo = QLabel("Impresoras Registradas")
         self.label_titulo.setFont(self.custom_font)
         self.label_titulo.setStyleSheet("color: #102540; font-size: 40px; padding-top: 20px;")
         self.label_titulo.setAlignment(Qt.AlignHCenter)
@@ -42,15 +43,12 @@ class BaseComputadoraWindow(QWidget):
         frame_contenedor_layout.setSpacing(15)
         frame_contenedor_layout.setContentsMargins(0, 30, 0, 0)
         
-        # BOTÓN RETROCESO
         self.arrow_button = QPushButton(self.frame)
         arrow = os.path.join(os.path.dirname(__file__), '../../resources/icons/icons8-sort-left-30.png')
         icon = QIcon(arrow)
         self.arrow_button.setIcon(icon)
         self.arrow_button.setIconSize(QSize(30, 30))
         self.arrow_button.setFixedSize(40, 40)
-        
-        # ESTILO DEL BOTÓN
         self.arrow_button.setStyleSheet("""
             QPushButton {
                 background-color: transparent;
@@ -62,7 +60,6 @@ class BaseComputadoraWindow(QWidget):
                 border-radius: 5px;
             }
         """)
-        
         self.arrow_button.move(20, 45)
         self.arrow_button.clicked.connect(self.volver)
         self.arrow_button.raise_()
@@ -88,14 +85,14 @@ class BaseComputadoraWindow(QWidget):
         self.frame_fondo_db.setStyleSheet("QFrame {background-color: #1e3f69; border-radius: 15px;}")
         frame_contenedor_layout.addWidget(self.frame_fondo_db, alignment=Qt.AlignCenter)
 
-        # TABLA COMPUTADORA 
         self.table_widget = QTableWidget(self.frame_fondo_db)
-        self.table_widget.setColumnCount(19)
-        self.table_widget.setHorizontalHeaderLabels([
-            "ID", "ID Cliente", "Fecha Ingreso", "Procesador", "Gráfica", "Nombre",
-            "Garantía", "Memoria", "Placa", "Teléfono", "Modelo", "Fuente", "Pantalla",
-            "Correo", "SO", "RAM", "Estado", "Precio", "Notas"
-        ])
+        campos = [
+            "ID", "ID Cliente", "Fecha Ingreso", "Marca", "Modelo", "Tipo Impresora",
+            "Conectividad", "Tipo Tinta", "Uso Estimado", "Nombre", "Teléfono",
+            "Correo", "Garantía", "Estado", "Notas"
+        ]
+        self.table_widget.setColumnCount(len(campos))
+        self.table_widget.setHorizontalHeaderLabels(campos)
 
         # Estilo visual
         self.table_widget.setStyleSheet("""
@@ -131,42 +128,17 @@ class BaseComputadoraWindow(QWidget):
             QScrollBar::sub-page:horizontal {
                 background: none;
             }""")
-
-        # Agrega la tabla al layout (asegurate de tener frame_contenedor_layout creado)
         self.frame_contenedor.setLayout(frame_contenedor_layout)
-
-        # Geometría manual si no usás layout para frame_fondo_db
         self.table_widget.setGeometry(10, 10,self.frame_fondo_db.width() - 20,self.frame_fondo_db.height() - 20)
 
-        # Header
         header = self.table_widget.horizontalHeader()
-        header.setStretchLastSection(False)  # No queremos que la última columna se estire sola
-        header.setSectionResizeMode(QHeaderView.Interactive)  # General
-
-        # Ajuste de columnas individual
-        for col in range(self.table_widget.columnCount()):
-            if col in [1]:  # ID Cliente 
-                self.table_widget.setColumnWidth(col, 90)
-            elif col in [0]:  # ID  
-                self.table_widget.setColumnWidth(col, 50)
-            elif col in [3, 4, 6, 8, 13, 14]:  # Campos de texto más largo
-                header.setSectionResizeMode(col, QHeaderView.ResizeToContents)
-            else:
-                header.setSectionResizeMode(col, QHeaderView.Interactive)
-
-
-        # Desactivar vertical header
+        header.setStretchLastSection(False)
+        header.setSectionResizeMode(QHeaderView.Interactive)
         self.table_widget.verticalHeader().setVisible(False)
-
-        # Desactivar ordenamiento
         self.table_widget.setSortingEnabled(False)
-
-        # Desactivar editar valores en la tabla  
         self.table_widget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-
-        #Agregar acción a la columna notas:
         self.table_widget.cellClicked.connect(self.handle_cell_click)
-    
+
         boton_estilo = (
             """
             QPushButton {
@@ -184,7 +156,7 @@ class BaseComputadoraWindow(QWidget):
         self.boton_Agregar = QPushButton("Agregar")
         self.boton_Agregar.setStyleSheet(boton_estilo)
         self.boton_Agregar.setFixedSize(120, 35)
-        self.boton_Agregar.clicked.connect(self.abrir_formulario_computadora)
+        self.boton_Agregar.clicked.connect(self.abrir_formulario_impresora)
 
         botones_layout = QHBoxLayout()
         botones_layout.addWidget(self.boton_Agregar)
@@ -199,28 +171,26 @@ class BaseComputadoraWindow(QWidget):
         self.setLayout(layout_principal)
 
     def _cargar_datos(self):
-        datos = self.controller.obtener_computadoras()
+        datos = self.controller.obtener_impresoras()
         self.table_widget.setRowCount(0)
 
         if not datos:
             return
 
         campos_a_mostrar = [
-            "id", "id_cliente", "fecha_ingreso", "procesador", "tarjeta_grafica", "nombre",
-            "garantia", "memoria", "placa", "telefono", "modelo", "fuente", "pantalla",
-            "correo", "sistema_operativo", "ram", "estado", "precio","notas"
+            "id", "id_cliente", "fecha_ingreso", "marca", "modelo", "tipo_impresora",
+            "conectividad", "tipo_tinta", "uso_estimado", "nombre", "telefono",
+            "correo", "garantia", "estado", "notas"
         ]
 
-        self.lista_computadoras_original = datos
-        #print("🧠 Contenido de datos:", datos)
-
+        self.lista_impresoras_original = datos
         self.table_widget.setColumnCount(len(campos_a_mostrar))
+        self.table_widget.setRowCount(len(datos))
         self.table_widget.setHorizontalHeaderLabels(campos_a_mostrar)
-        self.table_widget.setRowCount(len(datos))  # Asegurate de poner esto también acá
 
-        for fila, computadora in enumerate(self.lista_computadoras_original):
+        for fila, impresora in enumerate(self.lista_impresoras_original):
             for columna, campo in enumerate(campos_a_mostrar):
-                valor = str(computadora.get(campo, ""))
+                valor = str(impresora.get(campo, ""))
 
                 if campo == "notas":
                     palabras = valor.split()
@@ -229,7 +199,7 @@ class BaseComputadoraWindow(QWidget):
                 item = QTableWidgetItem(valor)
 
                 if campo == "notas":
-                    item.setToolTip(computadora.get("notas", ""))
+                    item.setToolTip(impresora.get("notas", ""))
 
                 self.table_widget.setItem(fila, columna, item)
 
@@ -243,10 +213,7 @@ class BaseComputadoraWindow(QWidget):
 
     def handle_cell_click(self, fila, columna):
         from utils.info_views import mostrar_popup_notas
-        """Al hacer clic en una celda, invoca 'mostrar_popup_notas' con la instancia,
-        la tabla, la lista de computadoras y las coordenadas para mostrar las notas
-        si la columna es "Notas"..."""
-        mostrar_popup_notas(self, self.table_widget, self.lista_computadoras_original, fila, columna)
+        mostrar_popup_notas(self, self.table_widget, self.lista_impresoras_original, fila, columna)
 
     def volver(self):
         from views.data_base_client import BaseDateWindow
@@ -254,9 +221,9 @@ class BaseComputadoraWindow(QWidget):
         self.base.show()
         self.close()
         
-    def abrir_formulario_computadora(self):
+    def abrir_formulario_impresora(self):
         from views.add_date import UpdateWindow
-        self.ventana_formulario = UpdateWindow(dispositivo_inicial="Computadora")
+        self.ventana_formulario = UpdateWindow(dispositivo_inicial="Impresora")
         self.ventana_formulario.show()
         self.close()
 

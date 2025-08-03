@@ -10,6 +10,7 @@ from src.model.client_model import ClienteModel
 # Vistas principales
 from src.views.login import LoginWindow
 from src.views.data_base_client import BaseDateWindow
+from src.views.add_date import UpdateWindow
 from src.views.dispositivos.computadora_view import BaseComputadoraWindow
 # from src.views.add_date import UpdateWindow  # Pantalla para agregar un dispositivo (opcional)
 
@@ -47,6 +48,7 @@ if __name__ == "__main__":
 
     # --- Ventanas principales del sistema ---
     #ventana = LoginWindow()                 # Pantalla de login
+    #ventana = UpdateWindow()                # Pantalla para administrar los datos
     #ventana = BaseComputadoraWindow()       # Vista de base de datos de computadoras
     ventana = BaseDateWindow()              # Vista general de base de datos de clientes
 

@@ -5,8 +5,6 @@ from src.views.exports.boleta.create_boleta import vista_previa_boleta
 from PySide6.QtGui import QIcon
 import os 
 
-
-
 class ViewBoleta(QWidget):
     def __init__(self, cliente_info, dispositivo_info):
         super().__init__()
