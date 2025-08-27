@@ -6,6 +6,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QDate, Signal, QSize
 from utils.resource_finder import cargar_fuente_predeterminada
+from utils.carga_generica import get_carga_generica
 
 class UpdateWindow(QWidget):
     closed = Signal()
@@ -46,7 +47,9 @@ class UpdateWindow(QWidget):
 
         # ComboBox para elegir dispositivo
         self.campo_dispositivo = QComboBox()
-        self.campo_dispositivo.addItems(["Personalizado", "Computadora", "Impresora", "Notebook", "Consola", "Celular", "Tablet"])
+        self.campo_dispositivo.addItems([
+            "Personalizado", "Computadora", "Impresora", "Notebook", "Celular", "Tablet", "PlayStation", "PS3Consola"
+        ])
         self.campo_dispositivo.setCurrentText(self.dispositivo_inicial)
         self.campo_dispositivo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
         self.campo_dispositivo.currentIndexChanged.connect(self.actualizar_campos_por_dispositivo)
@@ -144,74 +147,209 @@ class UpdateWindow(QWidget):
         dispositivo = self.campo_dispositivo.currentText()
         
         # Determina el método adecuado para mostrar los campos según el dispositivo seleccionado
-        metodo = getattr(self, f"mostrar_campos_{dispositivo.lower()}", self.mostrar_campos_personalizado)
+        metodo = getattr(self, f"mostrar_campos_{dispositivo.lower()}", self.mostrar_campos_generico)
         
         # Llama al método correspondiente
         metodo()
 
     def mostrar_campos_personalizado(self):
         etiquetas = [
-            "fecha_de_ingreso", "Procesador", "tarjeta_grafica", "Nombre", "garantia",
-            "Memoria", "Placa", "telefono", "Modelo", "Fuente", 
-            "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado"]
+            ("fecha_de_ingreso", "Fecha de ingreso"),
+            ("procesador", "Procesador"),
+            ("tarjeta_grafica", "Tarjeta gráfica"),
+            ("nombre", "Nombre"),
+            ("garantia", "Garantía"),
+            ("memoria", "Memoria"),
+            ("placa", "Placa"),
+            ("telefono", "Teléfono"),
+            ("modelo", "Modelo"),
+            ("fuente", "Fuente"),
+            ("pantalla", "Pantalla"),
+            ("correo", "Correo"),
+            ("sistema_operativo", "Sistema operativo"),
+            ("ram", "RAM"),
+            ("estado", "Estado")
+        ]
         self._agregar_campos(etiquetas)
        
     def mostrar_campos_impresora(self):
         etiquetas = [
-            "fecha_de_ingreso", "estado_general", "tipo_impresora", "Nombre", "garantia",
-            "Marca", "Placa", "telefono", "Modelo", "Conectividad",
-            "tipo_tinta", "Correo", "numero_serie", "uso_estimado", "Estado", "precio"
+            ("fecha_de_ingreso", "Fecha de ingreso"),
+            ("estado_general", "Estado general"),
+            ("tipo_impresora", "Tipo de impresora"),
+            ("nombre", "Nombre"),
+            ("garantia", "Garantía"),
+            ("marca", "Marca"),
+            ("placa", "Placa"),
+            ("telefono", "Teléfono"),
+            ("modelo", "Modelo"),
+            ("conectividad", "Conectividad"),
+            ("tipo_tinta", "Tipo de tinta"),
+            ("correo", "Correo"),
+            ("numero_serie", "Número de serie"),
+            ("uso_estimado", "Uso estimado"),
+            ("estado", "Estado"),
+            ("precio", "Precio")
         ]
         self._agregar_campos(etiquetas)
-        self.cargar_datos_genericos_impresora()
-
+        self.cargar_datos_genericos_dispositivo()
 
     def mostrar_campos_computadora(self):
         etiquetas = [
-            "fecha_de_ingreso", "Procesador", "tarjeta_grafica", "Nombre", "garantia",
-            "Memoria", "Placa", "telefono", "Modelo", "Fuente", 
-            "Pantalla", "Correo", "sistema_operativo", "Ram", "Estado", "precio"]
+            ("fecha_de_ingreso", "Fecha de ingreso"),
+            ("procesador", "Procesador"),
+            ("tarjeta_grafica", "Tarjeta gráfica"),
+            ("nombre", "Nombre"),
+            ("garantia", "Garantía"),
+            ("memoria", "Memoria"),
+            ("placa", "Placa"),
+            ("telefono", "Teléfono"),
+            ("modelo", "Modelo"),
+            ("fuente", "Fuente"),
+            ("pantalla", "Pantalla"),
+            ("correo", "Correo"),
+            ("sistema_operativo", "Sistema operativo"),
+            ("ram", "RAM"),
+            ("estado", "Estado"),
+            ("precio", "Precio")
+        ]
         self._agregar_campos(etiquetas)
-        self.cargar_datos_genericos()  # Cargar datos genericos
+        self.cargar_datos_genericos_dispositivo()
 
     def mostrar_campos_notebook(self):
         etiquetas = [
-            "fecha_de_ingreso", "Estado Cargador", "tarjeta_grafica", "Nombre", "garantia",
-            "Procesador", "Placa", "telefono", "Modelo", "Memoria", 
-            "Pantalla", "Correo", "TIM", "Ram", "Estado"]
+            ("fecha_de_ingreso", "Fecha de ingreso"),
+            ("estado_cargador", "Estado Cargador"),
+            ("tarjeta_grafica", "Tarjeta gráfica"),
+            ("nombre", "Nombre"),
+            ("garantia", "Garantía"),
+            ("procesador", "Procesador"),
+            ("placa", "Placa"),
+            ("telefono", "Teléfono"),
+            ("modelo", "Modelo"),
+            ("memoria", "Memoria"),
+            ("pantalla", "Pantalla"),
+            ("correo", "Correo"),
+            ("tim", "TIM"),
+            ("ram", "RAM"),
+            ("estado", "Estado")
+        ]
         self._agregar_campos(etiquetas)
+        self.cargar_datos_genericos_dispositivo()
 
-    def mostrar_campos_consola(self):
-        etiquetas = [
-            "fecha_de_ingreso", "Procesador", "Cantidad Mandos", "Nombre", "garantia",
-            "Memoria", "Mandos estado", "telefono", "Modelo", "Pantalla", 
-            "Correo", "sistema_operativo", "Ram", "Estado", "TIM"]
-        self._agregar_campos(etiquetas)
+    # ...eliminado soporte para Consola...
 
     def mostrar_campos_celular(self):
         etiquetas = [
-            "fecha_de_ingreso", "Estado Cargador", "Bateria", "Nombre", "garantia",
-            "Memoria", "Placa", "telefono", "Modelo", "Pantalla", 
-            "Correo", "sistema_operativo", "Ram", "Estado"]
+            ("fecha_de_ingreso", "Fecha de ingreso"),
+            ("estado_cargador", "Estado Cargador"),
+            ("bateria", "Batería"),
+            ("nombre", "Nombre"),
+            ("garantia", "Garantía"),
+            ("memoria", "Memoria"),
+            ("placa", "Placa"),
+            ("telefono", "Teléfono"),
+            ("modelo", "Modelo"),
+            ("pantalla", "Pantalla"),
+            ("correo", "Correo"),
+            ("sistema_operativo", "Sistema operativo"),
+            ("ram", "RAM"),
+            ("estado", "Estado")
+        ]
         self._agregar_campos(etiquetas)
+        self.cargar_datos_genericos_dispositivo()
 
     def mostrar_campos_tablet(self):
         etiquetas = [
-            "fecha_de_ingreso", "Estado Cargador", "Bateria", "Nombre", "garantia",
-            "Memoria", "Placa", "telefono", "Modelo", "Pantalla", 
-            "Correo", "sistema_operativo", "Ram", "Estado"]
+            ("fecha_de_ingreso", "Fecha de ingreso"),
+            ("estado_cargador", "Estado Cargador"),
+            ("bateria", "Batería"),
+            ("nombre", "Nombre"),
+            ("garantia", "Garantía"),
+            ("memoria", "Memoria"),
+            ("placa", "Placa"),
+            ("telefono", "Teléfono"),
+            ("modelo", "Modelo"),
+            ("pantalla", "Pantalla"),
+            ("correo", "Correo"),
+            ("sistema_operativo", "Sistema operativo"),
+            ("ram", "RAM"),
+            ("estado", "Estado")
+        ]
         self._agregar_campos(etiquetas)
+        self.cargar_datos_genericos_dispositivo()
+
+    def mostrar_campos_ps3consola(self):
+        etiquetas = [
+            ("fecha_de_ingreso", "Fecha de ingreso"),
+            ("procesador", "Procesador"),
+            ("cantidad_mandos", "Cantidad Mandos"),
+            ("nombre", "Nombre"),
+            ("garantia", "Garantía"),
+            ("memoria", "Memoria"),
+            ("mandos_estado", "Mandos estado"),
+            ("telefono", "Teléfono"),
+            ("modelo", "Modelo"),
+            ("pantalla", "Pantalla"),
+            ("correo", "Correo"),
+            ("sistema_operativo", "Sistema operativo"),
+            ("ram", "RAM"),
+            ("estado", "Estado"),
+            ("tim", "TIM")
+        ]
+        self._agregar_campos(etiquetas)
+        self.cargar_datos_genericos_dispositivo()
+
+    def mostrar_campos_playstation(self):
+        etiquetas = [
+            ("fecha_de_ingreso", "Fecha de ingreso"),
+            ("procesador", "Procesador"),
+            ("cantidad_mandos", "Cantidad Mandos"),
+            ("nombre", "Nombre"),
+            ("garantia", "Garantía"),
+            ("memoria", "Memoria"),
+            ("mandos_estado", "Mandos estado"),
+            ("telefono", "Teléfono"),
+            ("modelo", "Modelo"),
+            ("pantalla", "Pantalla"),
+            ("correo", "Correo"),
+            ("sistema_operativo", "Sistema operativo"),
+            ("ram", "RAM"),
+            ("estado", "Estado"),
+            ("tim", "TIM")
+        ]
+        self._agregar_campos(etiquetas)
+        self.cargar_datos_genericos_dispositivo()
+
+    def mostrar_campos_generico(self):
+        etiquetas = [
+            ("fecha_de_ingreso", "Fecha de ingreso"),
+            ("marca", "Marca"),
+            ("modelo", "Modelo"),
+            ("numero_serie", "Número de serie"),
+            ("estado", "Estado"),
+            ("nombre", "Nombre"),
+            ("telefono", "Teléfono"),
+            ("correo", "Correo"),
+            ("notas", "Notas")
+        ]
+        self._agregar_campos(etiquetas)
+        self.cargar_datos_genericos_dispositivo()
 
     def _agregar_campos(self, etiquetas):
         try:
             columnas = 4
-            for i, texto in enumerate(etiquetas):
+            for i, campo_info in enumerate(etiquetas):
+                if isinstance(campo_info, tuple):
+                    clave, texto = campo_info
+                else:
+                    clave = texto = campo_info
                 label = QLabel(texto, self)
                 label.setStyleSheet("color: white; font-size: 12px; font-weight: bold;")
                 label.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
 
                 # Campos especiales para "fecha_de_ingreso" y "garantia"
-                if texto in ["fecha_de_ingreso", "garantia"]:
+                if clave in ["fecha_de_ingreso", "garantia"]:
                     campo = QDateEdit(self)
                     campo.setDate(QDate.currentDate())  
                     campo.setDisplayFormat("dd-MM-yyyy")  
@@ -220,14 +358,14 @@ class UpdateWindow(QWidget):
                     campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
 
                 # Campo especial para "Estado"
-                elif texto == "Estado" or texto == "Mandos estado" or texto == "Estado Cargador":
+                elif clave in ["estado", "mandos_estado", "estado_cargador"]:
                     campo = QComboBox(self)
                     campo.addItems(["New", "Used", "Refurbished"])
                     campo.setFixedSize(130, 30)
                     campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
 
-                # Campo especial para "Cantidad Mandos"
-                elif texto == "Cantidad Mandos":
+                # Campo especial para "cantidad_mandos"
+                elif clave == "cantidad_mandos":
                     campo = QSpinBox(self)
                     campo.setRange(1, 10)  # Establece el rango de valores permitidos (1 a 10)
                     campo.setFixedSize(130, 30)
@@ -239,7 +377,7 @@ class UpdateWindow(QWidget):
                     campo.setFixedSize(130, 30)
                     campo.setStyleSheet("background-color: #2a4a75; color: white; border-radius: 5px; padding-left: 5px;")
 
-                self.campos[texto.lower()] = campo  # Asegúrate de no duplicar claves
+                self.campos[clave] = campo  # Clave interna para autocompletar
                 fila, columna = divmod(i, columnas)
                 self.grid_layout.addWidget(label, fila + 1, columna * 2)
                 self.grid_layout.addWidget(campo, fila + 1, columna * 2 + 1)
@@ -267,27 +405,11 @@ class UpdateWindow(QWidget):
             print(f"Ocurrió un error: {e}")
 
 
-    def cargar_datos_genericos(self): #PARA HACER TEST EN CASO DE NO USARSE COMENTAR 
-        genericos = {
-            "nombre": "Juan Pérez",
-            "telefono": "123456789",
-            "modelo": "Modelo X",
-            "placa": "ABC123",
-            "pantalla": "15.6 pulgadas",
-            "correo": "ejemplo@correo.com",
-            "sistema_operativo": "Windows 11",
-            "ram": "16GB",
-            "procesador": "Intel i7",
-            "memoria": "512GB SSD",
-            "fuente": "500W",
-            "tarjeta_grafica": "NVIDIA GTX 1650",
-            "garantia": QDate.currentDate(),
-            "fecha_de_ingreso": QDate.currentDate(),
-            "precio": "5.000.000",
-            "estado": "New"}
-
+    def cargar_datos_genericos_dispositivo(self):  # CARGA GENERICA PARA CUALQUIER DISPOSITIVO NUEVO
+        dispositivo = self.campo_dispositivo.currentText()
+        genericos = get_carga_generica(dispositivo)
         for clave, valor in genericos.items():
-            widget = self.campos.get(clave)
+            widget = self.campos.get(clave.lower())
             if isinstance(widget, QLineEdit):
                 widget.setText(valor)
             elif isinstance(widget, QTextEdit):
@@ -296,43 +418,13 @@ class UpdateWindow(QWidget):
                 index = widget.findText(valor)
                 if index != -1:
                     widget.setCurrentIndex(index)
-            elif isinstance(widget, QDateEdit) and isinstance(valor, QDate):
-                widget.setDate(valor)
-        #print("Se Agregan los datos genericos")
-
-    def cargar_datos_genericos_impresora(self):  # PARA HACER TEST EN CASO DE NO USARSE COMENTAR
-        genericos = {
-            "nombre": "María López",
-            "telefono": "0987654321",
-            "modelo": "Epson L3150",
-            "correo": "maria@example.com",
-            "estado_general": "Funciona correctamente",
-            "tipo_impresora": "Multifunción",
-            "conectividad": "Wi-Fi",
-            "tipo_tinta": "Tinta continua",
-            "uso_estimado": "Uso doméstico moderado",
-            "garantia": QDate.currentDate(),
-            "fecha_de_ingreso": QDate.currentDate(),
-            "precio": "3.500.000",
-            "estado": "En revisión",
-            "marca": "Epson",
-            "placa": "XYZ456",
-            "numero_serie": "SN-987654321"
-        }
-           
-
-        for clave, valor in genericos.items():
-            widget = self.campos.get(clave.lower().replace(" ", "_")) or self.campos.get(clave)
-            if isinstance(widget, QLineEdit):
-                widget.setText(valor)
-            elif isinstance(widget, QTextEdit):
-                widget.setPlainText(valor)
-            elif isinstance(widget, QComboBox):
-                index = widget.findText(valor)
-                if index != -1:
-                    widget.setCurrentIndex(index)
-            elif isinstance(widget, QDateEdit) and isinstance(valor, QDate):
-                widget.setDate(valor)
+            elif isinstance(widget, QDateEdit):
+                if isinstance(valor, QDate):
+                    widget.setDate(valor)
+                elif isinstance(valor, str):
+                    fecha = QDate.fromString(valor, "dd-MM-yyyy")
+                    if fecha.isValid():
+                        widget.setDate(fecha)
 
 
 #MÉTODOS PARA CARGAR LOS DATOS DESDE celda_clickeada (data_base_client.py)
@@ -355,12 +447,14 @@ class UpdateWindow(QWidget):
             self.cargar_datos_dispositivo(self.dispositivo_info)
         elif tipo_dispositivo == "Notebook":
             self.mostrar_campos_notebook(self.dispositivo_info)
-        elif tipo_dispositivo == "Consola":
-            self.mostrar_campos_consola(self.dispositivo_info)
         elif tipo_dispositivo == "Celular":
             self.mostrar_campos_celular(self.dispositivo_info)
         elif tipo_dispositivo == "Tablet":
             self.mostrar_campos_tablet(self.dispositivo_info)
+        elif tipo_dispositivo == "PlayStation":
+            self.mostrar_campos_playstation(self.dispositivo_info)
+        elif tipo_dispositivo == "PS3Consola":
+            self.mostrar_campos_ps3consola(self.dispositivo_info)
         else:
             self.mostrar_campos_personalizado()
 
@@ -483,10 +577,11 @@ class UpdateWindow(QWidget):
             "Computadora": ("src.controllers.dispositivo_controller.computadora_controller", "ComputadoraController", "editar_computadora"),
             "Impresora": ("src.controllers.dispositivo_controller.impresora_controller", "ImpresoraController", "editar_impresora"),
             "Notebook": ("src.controllers.dispositivo_controller.notebook_controller", "NotebookController", "editar_notebook"),
-            "Consola": ("src.controllers.dispositivo_controller.consola_controller", "ConsolaController", "editar_consola"),
             "Celular": ("src.controllers.dispositivo_controller.celular_controller", "CelularController", "editar_celular"),
             "Tablet": ("src.controllers.dispositivo_controller.tablet_controller", "TabletController", "editar_tablet"),
             "Personalizado": ("src.controllers.dispositivo_controller.personalizado_controller", "PersonalizadoController", "editar_personalizado"),
+            "PlayStation": ("src.controllers.dispositivo_controller.playstation_controller", "PlayStationController", "editar_playstation"),
+            "PS3Consola": ("src.controllers.dispositivo_controller.ps3consola_controller", "PS3ConsolaController", "editar_ps3consola"),
         }
 
         dispositivo = self.campo_dispositivo.currentText()
@@ -585,59 +680,49 @@ class UpdateWindow(QWidget):
             #else: print("📦 Datos preparados:", datos)
 
             # Si se agregó el cliente con éxito, agregar el dispositivo correspondiente
-            dispositivos_controladores = {
-                "Computadora": ("src.controllers.dispositivo_controller.computadora_controller", "ComputadoraController", "agregar_computadora"),
-                "Impresora": ("src.controllers.dispositivo_controller.impresora_controller", "ImpresoraController", "agregar_impresora"),
-                "Notebook": ("src.controllers.dispositivo_controller.notebook_controller", "NotebookController", "agregar_notebook"),
-                "Consola": ("src.controllers.dispositivo_controller.consola_controller", "ConsolaController", "agregar_consola"),
-                "Celular": ("src.controllers.dispositivo_controller.celular_controller", "CelularController", "agregar_celular"),
-                "Tablet": ("src.controllers.dispositivo_controller.tablet_controller", "TabletController", "agregar_tablet"),
-                "Personalizado": ("src.controllers.dispositivo_controller.personalizado_controller", "PersonalizadoController", "agregar_personalizado"),
-            }
+        dispositivos_controladores = {
+            "Computadora": ("src.controllers.dispositivo_controller.computadora_controller", "ComputadoraController", "agregar_computadora"),
+            "Impresora": ("src.controllers.dispositivo_controller.impresora_controller", "ImpresoraController", "agregar_impresora"),
+            "Notebook": ("src.controllers.dispositivo_controller.notebook_controller", "NotebookController", "agregar_notebook"),
+            "Celular": ("src.controllers.dispositivo_controller.celular_controller", "CelularController", "agregar_celular"),
+            "Tablet": ("src.controllers.dispositivo_controller.tablet_controller", "TabletController", "agregar_tablet"),
+            "Personalizado": ("src.controllers.dispositivo_controller.personalizado_controller", "PersonalizadoController", "agregar_personalizado"),
+            "PlayStation": ("src.controllers.dispositivo_controller.playstation_controller", "PlayStationController", "agregar_playstation"),
+            "PS3Consola": ("src.controllers.dispositivo_controller.ps3consola_controller", "PS3ConsolaController", "agregar_ps3consola"),
+        }
 
-            dispositivo = datos["dispositivo"]
-            modulo_path, clase_nombre, metodo_agregar = dispositivos_controladores.get(dispositivo, (None, None, None))
+        dispositivo = datos["dispositivo"]
+        modulo_path, clase_nombre, metodo_agregar = dispositivos_controladores.get(dispositivo, (None, None, None))
 
-            if modulo_path:
-                modulo = __import__(modulo_path, fromlist=[clase_nombre])
-                clase_controlador = getattr(modulo, clase_nombre)
+        if modulo_path:
+            modulo = __import__(modulo_path, fromlist=[clase_nombre])
+            clase_controlador = getattr(modulo, clase_nombre)
+            try:
+                controlador = clase_controlador()
+            except Exception as e:
+                print(f"❌ Error al instanciar el controlador '{clase_nombre}': {e}")
+                import traceback
+                traceback.print_exc()
+                return
+
+            # Extraer campos del formulario según el dispositivo
+            campos_dispositivo = {}
+            for etiqueta, widget in self.campos.items():
+                clave = etiqueta.lower().replace(" ", "_")
                 try:
-                    controlador = clase_controlador()
-                except Exception as e:
-                    print(f"❌ Error al instanciar el controlador '{clase_nombre}': {e}")
-                    import traceback
-                    traceback.print_exc()
-                    return
-
-                # Extraer campos del formulario según el dispositivo
-                campos_dispositivo = {}
-                for etiqueta, widget in self.campos.items():
-                    clave = etiqueta.lower().replace(" ", "_")
-
-                    try:
-                        if isinstance(widget, QLineEdit):
-                            campos_dispositivo[clave] = widget.text().strip()
-
-                        elif isinstance(widget, QDateEdit):
-                            campos_dispositivo[clave] = widget.date().toString("yyyy-MM-dd")
-
-                        elif isinstance(widget, QComboBox):
-                            campos_dispositivo[clave] = widget.currentText()
-
-                        elif isinstance(widget, QSpinBox):
-                            campos_dispositivo[clave] = widget.value()
-
-                        elif isinstance(widget, QTextEdit):
-                            campos_dispositivo[clave] = widget.toPlainText().strip()
-
-                    except RuntimeError as e:
-                        print(f"❌ Error al acceder al campo '{clave}': {e}")
-                        continue
-
-
-            # Agregar notas si el campo existe
-            if hasattr(self, "nota"):
-                campos_dispositivo["notas"] = self.nota.toPlainText().strip()
+                    if isinstance(widget, QLineEdit):
+                        campos_dispositivo[clave] = widget.text().strip()
+                    elif isinstance(widget, QDateEdit):
+                        campos_dispositivo[clave] = widget.date().toString("yyyy-MM-dd")
+                    elif isinstance(widget, QComboBox):
+                        campos_dispositivo[clave] = widget.currentText()
+                    elif isinstance(widget, QSpinBox):
+                        campos_dispositivo[clave] = widget.value()
+                    elif isinstance(widget, QTextEdit):
+                        campos_dispositivo[clave] = widget.toPlainText().strip()
+                except RuntimeError as e:
+                    print(f"❌ Error al acceder al campo '{clave}': {e}")
+                    continue
 
             # Relaciona con el cliente creado
             campos_dispositivo["id_cliente"] = id_cliente
@@ -646,7 +731,7 @@ class UpdateWindow(QWidget):
             metodo = getattr(controlador, metodo_agregar)
             metodo(**campos_dispositivo)
 
-        else: 
+        else:
             print("Operación cancelada por el usuario.")
 
     def eliminar(self):
@@ -677,10 +762,11 @@ class UpdateWindow(QWidget):
             "Computadora": ("src.controllers.dispositivo_controller.computadora_controller", "ComputadoraController", "eliminar_computadora"),
             "Impresora": ("src.controllers.dispositivo_controller.impresora_controller", "ImpresoraController", "eliminar_impresora"),
             "Notebook": ("src.controllers.dispositivo_controller.notebook_controller", "NotebookController", "eliminar_notebook"),
-            "Consola": ("src.controllers.dispositivo_controller.consola_controller", "ConsolaController", "eliminar_consola"),
             "Celular": ("src.controllers.dispositivo_controller.celular_controller", "CelularController", "eliminar_celular"),
             "Tablet": ("src.controllers.dispositivo_controller.tablet_controller", "TabletController", "eliminar_tablet"),
             "Personalizado": ("src.controllers.dispositivo_controller.personalizado_controller", "PersonalizadoController", "eliminar_personalizado"),
+            "PlayStation": ("src.controllers.dispositivo_controller.playstation_controller", "PlayStationController", "eliminar_playstation"),
+            "PS3Consola": ("src.controllers.dispositivo_controller.ps3consola_controller", "PS3ConsolaController", "eliminar_ps3consola"),
         }
 
         # Extraer tipo de dispositivo desde el comboBox o su valor actual

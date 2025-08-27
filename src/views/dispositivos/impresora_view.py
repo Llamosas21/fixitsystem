@@ -7,6 +7,8 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QSize
 from src.controllers.dispositivo_controller.impresora_controller import ImpresoraController
 from utils.resource_finder import cargar_fuente_predeterminada
+from src.views.base.base_dispositivo_window import BaseDispositivoWindow
+from src.model.dispositivo_model.impresora_model import ImpresoraModel
 
 
 class BaseImpresoraWindow(QWidget):
@@ -237,3 +239,9 @@ class BaseImpresoraWindow(QWidget):
     def closeEvent(self, event):
         self.controller.cerrar_conexion()
         super().closeEvent(event)
+
+
+class ImpresoraWindow(BaseDispositivoWindow):
+    def __init__(self, marca, modelo, numero_serie, estado, cliente_id):
+        dispositivo = ImpresoraModel(marca, modelo, numero_serie, estado, cliente_id)
+        super().__init__(dispositivo, titulo=f"Impresora {marca} {modelo}")

@@ -2,11 +2,31 @@ import sqlite3
 
 class ComputadoraModel:
  
-    def __init__(self, db_path="src/database/fixitsystem.db"):
-        self.connect = sqlite3.connect(db_path)
-        self.connect.row_factory = sqlite3.Row 
-        self.cursor = self.connect.cursor()
-        self.crear_tabla()
+    def __init__(self, db_path="src/database/fixitsystem.db", marca=None, modelo=None, numero_serie=None, estado=None, cliente_id=None):
+        if marca is not None:
+            # Instancia para visualización rápida
+            self.marca = marca
+            self.modelo = modelo
+            self.numero_serie = numero_serie
+            self.estado = estado
+            self.cliente_id = cliente_id
+        else:
+            # Instancia para acceso a base de datos
+            self.connect = sqlite3.connect(db_path)
+            self.connect.row_factory = sqlite3.Row 
+            self.cursor = self.connect.cursor()
+            self.crear_tabla()
+
+    def to_dict(self):
+        if hasattr(self, 'marca'):
+            return {
+                'marca': self.marca,
+                'modelo': self.modelo,
+                'numero_serie': self.numero_serie,
+                'estado': self.estado,
+                'cliente_id': self.cliente_id
+            }
+        return {}
 
     def crear_tabla(self):
         self.cursor.execute("""

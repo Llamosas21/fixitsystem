@@ -7,17 +7,14 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QSize
 from src.controllers.dispositivo_controller.computadora_controller import ComputadoraController
 from utils.resource_finder import cargar_fuente_predeterminada
+from src.views.base.base_dispositivo_window import BaseDispositivoWindow
+from src.model.dispositivo_model.computadora_model import ComputadoraModel
 
-class BaseComputadoraWindow(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("FixItSystem - Base de Datos Computadora")
-        self.controller = ComputadoraController()
-        self._configurar_ventana()
-        self.custom_font = cargar_fuente_predeterminada()
-        self._crear_interfaz()
-        self._cargar_datos()
-        
+class ComputadoraWindow(BaseDispositivoWindow):
+    def __init__(self, marca, modelo, numero_serie, estado, cliente_id):
+        dispositivo = ComputadoraModel(marca, modelo, numero_serie, estado, cliente_id)
+        super().__init__(dispositivo, titulo=f"Computadora {marca} {modelo}")
+
     def _configurar_ventana(self):
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMaximizeButtonHint)
         self.showMaximized()

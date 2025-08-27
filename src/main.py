@@ -11,10 +11,17 @@ from src.model.client_model import ClienteModel
 from src.views.login import LoginWindow
 from src.views.data_base_client import BaseDateWindow
 from src.views.add_date import UpdateWindow
-from src.views.dispositivos.computadora_view import BaseComputadoraWindow
-# from src.views.add_date import UpdateWindow  # Pantalla para agregar un dispositivo (opcional)
 
-#vista Secundaria
+# Vistas de dispositivos refactorizadas
+from src.views.dispositivos.computadora_view import ComputadoraWindow
+from src.views.dispositivos.notebook_view import NotebookWindow
+from src.views.dispositivos.impresora_view import ImpresoraWindow
+from src.views.dispositivos.celular_view import CelularWindow
+from src.views.dispositivos.tablet_view import TabletWindow
+from src.views.dispositivos.playstation_view import PlayStationWindow
+from src.views.dispositivos.ps3consola_view import PS3ConsolaWindow
+
+# Vista Secundaria
 from src.views.exports.boleta.view_boleta import ViewBoleta
 
 # Inicializa la base de datos (crea tabla si no existe)
@@ -49,10 +56,21 @@ if __name__ == "__main__":
     # --- Ventanas principales del sistema ---
     #ventana = LoginWindow()                 # Pantalla de login
     #ventana = UpdateWindow()                # Pantalla para administrar los datos
-    #ventana = BaseComputadoraWindow()       # Vista de base de datos de computadoras
-    ventana = BaseDateWindow()              # Vista general de base de datos de clientes
+    #ventana = BaseDateWindow()              # Vista general de base de datos de clientes
 
-    # --- Ventanas Secundarias del sistema ---
+    # --- Vistas de dispositivos (descomenta para probar cada una) ---
+    ventana = ComputadoraWindow("Dell", "Inspiron", "12345", "Reparado", 1)
+    ventana = NotebookWindow("HP", "Pavilion", "67890", "En proceso", 2)
+    ventana = ImpresoraWindow("Epson", "L3150", "54321", "Listo", 3)
+    ventana = CelularWindow("Samsung", "S21", "98765", "Reparado", 4)
+    ventana = TabletWindow("Apple", "iPad Pro", "33445", "En espera", 6)
+    ventana = PlayStationWindow("PS5", "55667", "Nuevo", 7)
+    ventana = PS3ConsolaWindow("77889", "Usado", 8)
+
+    # --- Vista Secundaria del sistema ---
     #ventana = ViewBoleta()                 # Vista boleta
     #ventana.mostrar_vista_previa()         # Llama al botón y abre un html (sin hacer nada)
+
+    ventana = BaseDateWindow()              # Vista general de base de datos de clientes
+    ventana.show()
     sys.exit(app.exec())
